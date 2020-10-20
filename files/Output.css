@@ -1,0 +1,93 @@
+.align-center
+{
+	text-align: center;
+}
+.imgSetting
+{
+	display: block;
+	margin: 0 auto;
+	padding: 10px 20px 10px 20px;
+}
+.smallText
+{
+	text-align: center;
+	font-family: Calibri;
+	font-size: calc(0.7rem + 6 * (100vw - 320px) / 880);
+	padding: 3px;
+}
+.text-content
+{
+	font-family: Calibri;
+	font-size: calc(0.85rem + 6 * (100vw - 320px) / 880);
+	padding: 20px;
+}
+.textFormulas
+{
+	font-size: calc(0.85rem + 6 * (100vw - 320px) / 880);
+	padding: 0 5px 0 50px;
+}
+table{
+	border-collapse: collapse;
+}
+.imgTable
+{
+	table-layout: fixed;
+	width: 350px;
+	padding: 10px;
+}
+td, th
+{
+	border: 1px solid #333;
+	padding: 5px;
+}
+.selectionColor:hover
+{
+	background: #a3d5fb;
+}
+p
+{
+	padding: 0px 20px 0px 20px;
+	text-indent: 20px;
+	text-align: justify;
+}
+h1
+{
+	text-indent: 20px;
+}
+.frameImg
+{
+	display: block;
+	margin: auto;	
+	text-align: center;
+}
+.WinFormulas
+{
+	overflow-y: scroll;
+	height: 240px;
+	width: 70%;
+	border: 1px solid #C1C1C1;
+	margin: 0 0 0 40px;
+}
+
+hr
+{
+	background-color: #c0dbf3;
+	height: 1px;
+	border: none;
+	margin: 10px 0 10px 0;
+}
+
+.colorPath
+{
+	display: inline;
+	background: #afd6e7;	
+}
+.colorCrPath
+{
+	display: inline;
+	background: #abfb96;	
+}
+.divIndent
+{
+	padding: 10px 0 10px 0;
+}

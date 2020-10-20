@@ -1,0 +1,40 @@
+digraph MyPlan {
+  node [shape="circle", style="filled", fillcolor="blue", fontcolor="#FFFFFF", margin="0.01"];
+  edge [style="dashed"];
+
+  {
+    node [shape="plaintext",style="invisible"];
+    edge [color="white"];
+    "1" -> "2" -> "3" -> "4" -> "5" -> "6" -> "7";
+  }
+
+  subgraph week {
+    node [shape="box", style="filled", fillcolor="green", fontcolor="black", fontsize="9"];
+    label = "Дни недели";
+    "Понедельник";
+    "Вторник";
+    "Среда";
+    "Четверг";
+    "Пятница";
+    "Суббота";
+    "Воскресенье";
+  { rank="same"; "1"; "Понедельник"; }
+  { rank="same"; "2"; "Вторник"; }
+  { rank="same"; "3"; "Среда";  }
+  { rank="same"; "4"; "Четверг"; }
+  { rank="same"; "5"; "Пятница"; }
+  { rank="same"; "6"; "Суббота"; }
+  { rank="same"; "7"; "Воскресенье"; }
+  }
+
+  "Документы" [fillcolor="red"];
+
+  "Понедельник"->"Тренировка"->"Продукты";
+  "Вторник"->"Мойка авто";
+  "Среда"->"Продукты";
+  "Четверг"->"Документы"->"Тренировка";
+  "Документы"->"Кафе"->"Документы";
+  "Пятница"->"Продукты";
+  "Суббота"->"Мойка авто"->"Тренировка";
+  "Воскресенье";
+}

@@ -1,0 +1,11 @@
+digraph MyPlan {
+   node [margin="0.01"];
+   rankdir="LR";
+
+   "users_tbl" [shape="record", label="пользователи| user_id|username|password"];
+   "perms_tbl" [shape="record", label="права доступа| perm_id|permission|description"];
+   "access_tbl" [shape="record", label="доступ| user_id| perm_id"];
+   
+   "users_tbl":PK -> "access_tbl":FK1[dir="both",arrowtail="invdot",arrowhead="odot"];
+   "perms_tbl":PK -> "access_tbl":FK2[dir="both",arrowtail="invdot",arrowhead="odot"];
+}
