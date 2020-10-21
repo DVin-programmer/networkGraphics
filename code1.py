@@ -60,12 +60,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         table_info_exam = QtWidgets.QTableWidget(self.centralwidget)  # Создаём таблицу
         table_info_exam.setColumnCount(3)  # Устанавливаем 5 столбцов
-        table_info_exam.setRowCount(30)  # строки
+        table_info_exam.setRowCount(7)  # строки
         table_info_exam.setFont(font)
 
         # Устанавливаем заголовки таблицы
         table_info_exam.setHorizontalHeaderLabels(["Номер \n работы", "Описание работы",
-                                                   "Длительность (в днях)"])
+                                                   "Длительность \n(в днях)"])
         # Удаление номеров
         table_info_exam.verticalHeader().setVisible(False)
         table_info_exam.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -74,27 +74,29 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             table_info_exam.horizontalHeaderItem(i).setTextAlignment(QtCore.Qt.AlignHCenter)
 
         # Заполнение номеров работ
-        for i in range(0, 30):
+        for i in range(0, 7):
             num_jobs_table = QtWidgets.QTableWidgetItem(str(i+1))
             print(i)
             table_info_exam.setItem(i, 0, num_jobs_table)
             num_jobs_table.setTextAlignment(QtCore.Qt.AlignCenter)
             num_jobs_table.setFlags(QtCore.Qt.ItemIsEnabled)
 
-        for i in range(0, 30):
+        '''for i in range(0, 30):
             for j in range(1, 3):
                 cell = QtWidgets.QTableWidgetItem(str(i-j*10))
                 print(i, j, 30)
                 table_info_exam.setItem(i, j, cell)
                 cell.setTextAlignment(QtCore.Qt.AlignCenter)
-                cell.setFlags(QtCore.Qt.ItemIsEnabled)
+                cell.setFlags(QtCore.Qt.ItemIsEnabled)'''
 
         table_info_exam.resizeColumnsToContents()
         table_info_exam.resizeRowsToContents()
         #grid_layout.addWidget(table_info_exam, 0, 0)
-        table_info_exam.setGeometry(QtCore.QRect(20, 120, 520, 300))
-        table_info_exam.setColumnWidth(1, 310)
-        #table_info_exam.move(120, 20)
+        t = 48 + 23 + 23 + 23 + 23 + 23
+        print(t)
+        table_info_exam.setGeometry(QtCore.QRect(20, 120, 520, 49 + 24.3*7))
+        table_info_exam.setColumnWidth(1, 375)
+        #table_info_exam.move(20, 120)
 
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 572, 21))
