@@ -273,7 +273,7 @@ def btnOnOff(event):
     btnWid  = event.widget
     btnWidF = str(btnWid).find("b")
     btnWidCut = str(btnWid)[btnWidF:]
-    #print(lstBtn,lstBtnCol)
+    print("=======lst:",lstBtn,lstBtnRow, lstBtnCol)
     if btnWid["bg"] == "#9e9e9e":
         btnWid["bg"] = "#21e51c"
         if not(dictBtn[str(btnWidCut)] in lstBtn):

@@ -35,6 +35,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         super(Ui_MainWindow, self).__init__(*args, **kwargs)
         #self.setFixedSize(750, 728)
         self.setupUi(self)
+        self.setWindowTitle("Построение сетевого графика")
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -44,17 +45,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         font = QtGui.QFont()
         font.setFamily("Bahnschrift SemiLight SemiConde")
-        font.setPointSize(11)
+        font.setPointSize(12)
 
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(40, 40, 181, 16))
+        self.label.setGeometry(QtCore.QRect(30, 40, 181, 16))
         self.label.setObjectName("label")
         self.label.setFont(font)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.spinBox_num_jobs = QtWidgets.QSpinBox(self.centralwidget)
         self.spinBox_num_jobs.setGeometry(QtCore.QRect(220, 39, 42, 22))
-        self.spinBox_num_jobs.setValue(10)
+        self.spinBox_num_jobs.setValue(5)
         self.spinBox_num_jobs.setObjectName("spinBox_num_jobs")
         self.spinBox_num_jobs.setFont(font)
 
@@ -115,7 +116,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         font = QtGui.QFont()
         font.setFamily("Bahnschrift SemiLight SemiConde")
-        font.setPointSize(11)
+        font.setPointSize(12)
 
         self.table_jobs = QtWidgets.QTableWidget(self.centralwidget)  # Создаём таблицу
         self.table_jobs.setFont(font)
@@ -127,7 +128,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.table_jobs.resizeColumnsToContents()
         self.table_jobs.resizeRowsToContents()
         self.table_jobs.setGeometry(QtCore.QRect(20, 120, 530, 285))
-        self.table_jobs.setColumnWidth(1, 350)
+        self.table_jobs.setColumnWidth(1, 340)
 
 
         self.pushButton_order_of_work = QtWidgets.QPushButton(self.centralwidget)
@@ -154,6 +155,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                        background_color_press, border_color_press, color_press,
                                        border_width, border_radius)
         self.pushButton_order_of_work.setVisible(False)
+
+
+        self.order_of_work = Win_OrderOfWork(self)
 
 
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -223,16 +227,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             # Заполнение номеров работ
             for i in range(0, self.num_str_in_table):
-                num_jobs_table = QtWidgets.QTableWidgetItem(str(i + 1))
+                self.num_jobs_table = QtWidgets.QTableWidgetItem(str(i + 1))
                 # print(i)
-                self.table_jobs.setItem(i, 0, num_jobs_table)
-                num_jobs_table.setTextAlignment(QtCore.Qt.AlignCenter)
-                num_jobs_table.setFlags(QtCore.Qt.ItemIsEnabled)
+                self.table_jobs.setItem(i, 0, self.num_jobs_table)
+                self.num_jobs_table.setTextAlignment(QtCore.Qt.AlignCenter)
+                self.num_jobs_table.setFlags(QtCore.Qt.ItemIsEnabled)
 
             # Заполнение остальных ячеек
             for i in range(0, self.num_str_in_table):
                 for j in range(1, 3):
-                    cell = QtWidgets.QTableWidgetItem("")
+                    cell = QtWidgets.QTableWidgetItem("34")
                     self.table_jobs.setItem(i, j, cell)
                     cell.setTextAlignment(QtCore.Qt.AlignCenter)
                     #cell.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -241,13 +245,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         '''
         Проверяет поля таблицы на корректность.
         '''
-        print("Вызов метода check_table")
+        flag_col2 = False
+        flag_col3 = False
         # Проверка столбца "Описание работы"
         for i in range(0, self.num_str_in_table):
             cell = self.table_jobs.item(i, 1).text()
-            print(cell)
             if cell == "":
                 self.table_jobs.item(i, 1).setBackground(QtGui.QColor("#f78989"))
+                flag_col2 = True
             else:
                 self.table_jobs.item(i, 1).setBackground(QtGui.QColor("#ffffff"))
 
@@ -255,11 +260,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.table_jobs.setStyleSheet("QTableWidget::item:selected{ background-color: #4f7cfc}")
         for i in range(0, self.num_str_in_table):
             cell = self.table_jobs.item(i, 2).text()
-            print(cell)
             if cell == "" or not(cell.isdigit()):
                 self.table_jobs.item(i, 2).setBackground(QtGui.QColor("#f78989"))
+                flag_col3 = True
             else:
                 self.table_jobs.item(i, 2).setBackground(QtGui.QColor("#ffffff"))
+
+        if flag_col2 == False and flag_col3 == False:
+            self.open_win_order_of_work()
+            '''for i in range(0, self.num_str_in_table):
+                for j in range(1, 3):
+                    cell.setFlags(QtCore.Qt.ItemIsEnabled)'''
 
     def clear_info(self):
         '''
@@ -287,7 +298,186 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                        background_color_hover, border_color_hover, color_hover,
                                        background_color_press, border_color_press, color_press,
                                        border_width, border_radius)
+        self.order_of_work.close()
 
+    def open_win_order_of_work(self):
+        self.order_of_work.show()
+        self.order_of_work.add_buttons(self.num_str_in_table)
+
+
+
+# Класс для окна с порядком работ
+class Win_OrderOfWork(QtWidgets.QMainWindow):
+    def __init__(self, window):
+        QtWidgets.QMainWindow.__init__(self)
+        self.window = window
+
+    def add_buttons(self, num_str_in_table):
+        '''
+        Данный метод размещает в окне два виджета и
+        размещает кнопки для выбора работ.
+        '''
+        self.setWindowTitle("Порядок выполнения работ")
+        self.resize(500, 500)
+        self.setMaximumSize(1000, 700)
+
+        '''self.left = 20
+        self.top = 70
+        self.width = 400
+        self.height = 200
+        self.setGeometry(self.left, self.top, self.width, self.height)'''
+
+        main_widget = QtWidgets.QWidget()
+        v_layout = QtWidgets.QVBoxLayout()
+        main_widget.setLayout(v_layout)
+        self.setCentralWidget(main_widget)
+
+        # TOP
+        scrollAreaTop = QtWidgets.QScrollArea()
+        scrollAreaTop.setWidgetResizable(True)
+        scrollAreaTop.setFixedHeight(70)
+        scrollAreaTop.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        scrollAreaTop.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        """scrollAreaTop.setStyleSheet('''
+                QScrollArea
+                {
+                border: 0px; 
+                }''')"""
+
+        # BOTTOM
+        scrollAreaBottom = QtWidgets.QScrollArea()
+        scrollAreaBottom.setWidgetResizable(True)
+        scrollAreaBottom.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        scrollAreaBottom.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+
+        v_layout.addWidget(scrollAreaTop)
+        v_layout.addWidget(scrollAreaBottom)
+        v_layout.setSpacing(2)
+
+        # Виджет в Top
+        self.widget_top = QtWidgets.QWidget(scrollAreaTop)
+        self.widget_top.setFixedWidth(1000)
+        self.widget_top.setFixedHeight(100)
+        self.widget_top.setStyleSheet('''
+                background: "#c6e4fb";
+                min-width: 5em;''')
+        scrollAreaTop.setWidget(self.widget_top)
+
+        # Виджет для размещения кнопок
+        self.widget_for_buttons = QtWidgets.QWidget(scrollAreaBottom)
+        self.widget_for_buttons.setFixedWidth(5900)
+        self.widget_for_buttons.setFixedHeight(3200)
+        # self.widget_for_task.setStyleSheet("""background: green;""")
+        scrollAreaBottom.setWidget(self.widget_for_buttons)
+
+        self.label_part1 = QtWidgets.QLabel(self.widget_top)
+        self.label_part1.setGeometry(QtCore.QRect(30, 20, 325, 24))
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift SemiLight SemiConde")
+        font.setPointSize(12)
+        self.label_part1.setFont(font)
+        self.label_part1.setObjectName("label_part1")
+        self.label_part1.setText("Укажите порядок выполнения работ.")
+
+        global lst_btn, lst_btn_col, lst_btn_row
+        lst_btn, lst_btn_col, lst_btn_row = [], [] ,[]
+
+        for i in range(0, num_str_in_table - 1):
+            for j in range(1, num_str_in_table):
+                xJ = (j - 1)*59 + 40
+                if i < j:
+                    yI = 40 + i*31
+                    print(str(i + 1) + "⇾" + str(j + 1), xJ, yI)
+
+                    globals()["btn" + str(i+1) + "_" + str(j+1)] = QtWidgets.QPushButton(self.widget_for_buttons)
+                    globals()["btn" + str(i+1) + "_" + str(j+1)].setGeometry(QtCore.QRect(xJ, yI, 60, 32))
+                    globals()["btn" + str(i+1) + "_" + str(j+1)].setFont(font)
+                    globals()["btn" + str(i+1) + "_" + str(j+1)].setStyleSheet('''
+                                                background-color: "#cccccc";
+                                                border-style: solid;
+                                                border-color: "#909090";
+                                                border-width: 1px;
+                                                border-radius: 0px;
+                                                color: "#909090";''')
+                    '''button_style.properties_button(globals()["btn" + str(i) + "_" + str(j)], background_color,
+                                                   border_color, color,
+                                                   background_color_hover, border_color_hover, color_hover,
+                                                   background_color_press, border_color_press, color_press,
+                                                   border_width, border_radius)'''
+                    globals()["btn" + str(i+1) + "_" + str(j+1)].setText(str(i + 1) + "⇾" + str(j + 1))
+
+        # Обработка нажатой кнопки
+        for i in range(0, num_str_in_table - 1):
+            for j in range(1, num_str_in_table):
+                if i < j:
+                    globals()["btn" + str(i+1) + "_" + str(j+1)].clicked.connect(self.pressed_button)
+
+
+
+        self.pushButton_building = QtWidgets.QPushButton(self.widget_top)
+        self.pushButton_building.setGeometry(QtCore.QRect(290, 22, 75, 27))
+        self.pushButton_building.setObjectName("pushButton_building")
+        self.pushButton_building.setText("Далее")
+        #self.pushButton_building.clicked.connect(self.create_table)
+        self.pushButton_building.setFont(font)
+        background_color = "#51d77a"
+        border_color = "#2d8849"
+        color = "#2d8849"
+        background_color_hover = "#75e998"
+        border_color_hover = "#2d8849"
+        color_hover = "#2d8849"
+        background_color_press = "#17c14b"
+        border_color_press = "#2d8849"
+        color_press = "#75e998"
+        border_width = "1px"
+        border_radius = "2px"
+        button_style = StyleWidgets()
+        button_style.properties_button(self.pushButton_building, background_color,
+                                       border_color, color,
+                                       background_color_hover, border_color_hover, color_hover,
+                                       background_color_press, border_color_press, color_press,
+                                       border_width, border_radius)
+
+    # Метод обработки нажатой кнопки с билетом
+    def pressed_button(self):
+        print("метод pressed_button")
+        global numBtn
+        sender = self.sender() # устанавливаем какой виджет является отправителем сигнала
+        textButton = sender.text()
+        index = textButton.find("⇾") # находим индекс
+        btn_text_one_num = textButton[:index]
+        btn_text_two_num = textButton[index + 1:]
+        #print(index, btn_text_one_num, btn_text_two_num)
+        if not((btn_text_one_num + "_" + btn_text_two_num) in lst_btn):
+            lst_btn.append(btn_text_one_num + "_" + btn_text_two_num)
+            lst_btn_row.append(btn_text_one_num)
+            lst_btn_col.append(btn_text_two_num)
+
+            globals()["btn" + str(int(btn_text_one_num)) +\
+                      "_" + str(int(btn_text_two_num))].setStyleSheet('''
+            background-color: "#6cbef1";
+            border-color: "#155b87";
+            color: "#155b87";
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 0px;
+            ''')
+        else:
+            print("else")
+            lst_btn.remove(btn_text_one_num + "_" + btn_text_two_num)
+            lst_btn_row.remove(btn_text_one_num)
+            lst_btn_col.remove(btn_text_two_num)
+
+            globals()["btn" + str(int(btn_text_one_num)) + \
+                      "_" + str(int(btn_text_two_num) )].setStyleSheet('''
+            background-color: "#cccccc";
+            border-color: "#909090";
+            color: "#909090";
+            border-style: solid;
+            border-width: 1px;
+            border-radius: 0px;''')
+
+        print("Содержимое списков:", lst_btn, lst_btn_row, lst_btn_col)
 
 
 
