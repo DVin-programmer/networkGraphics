@@ -1,41 +1,22 @@
-digraph NetworkGraph01
-{
-   //graph [charset = "utf8"]
-   rankdir = LR
-   layout = dot
-   splines = spline
-   node [style = "filled, bold", fillcolor = "#f2f4f7", fontname = "Arial"]
-   edge [penwidth = 2]
-   v1 [fontname = "Arial",color = "#d94fa3", shape = record, label = "{  |  |  } |  <mI1> 1. 23423 | { |  |  }"]
-   v2 [fontname = "Arial",color = "#57e79c", shape = record, label = "{  |  |  } |  <mI2> 2. 4 | { |  |  }"]
-   v3 [fontname = "Arial",color = "#a875e1", shape = record, label = "{  |  |  } |  <mI3> 3. 324324 | { |  |  }"]
-   v4 [fontname = "Arial",color = "#d45383", shape = record, label = "{  |  |  } |  <mI4> 4. 4324 | { |  |  }"]
-   v5 [fontname = "Arial",color = "#449b5e", shape = record, label = "{  |  |  } |  <mI5> 5. 4 | { |  |  }"]
-   v6 [fontname = "Arial",color = "#eee3bd", shape = record, label = "{  |  |  } |  <mI6> 6. 4324 | { |  |  }"]
-   v7 [fontname = "Arial",color = "#b4eaef", shape = record, label = "{  |  |  } |  <mI7> 7. 432432432 | { |  |  }"]
-   v8 [fontname = "Arial",color = "#78da67", shape = record, label = "{  |  |  } |  <mI8> 8. 32 | { |  |  }"]
-   v9 [fontname = "Arial",color = "#44dab0", shape = record, label = "{  |  |  } |  <mI9> 9. 32 | { |  |  }"]
-   v10 [fontname = "Arial",color = "#cdc54e", shape = record, label = "{  |  |  } |  <mI10> 10. 32 | { |  |  }"]
-   v11 [fontname = "Arial",color = "#d8794e", shape = record, label = "{  |  |  } |  <mI11> 11. 423423 | { |  |  }"]
-   v12 [fontname = "Arial",color = "#e3637a", shape = record, label = "{  |  |  } |  <mI12> 12. 234 | { |  |  }"]
-   v9:<mI9> -> v11:<mI11> [color = "#44dab0"]
-   v8:<mI8> -> v10:<mI10> [color = "#78da67"]
-   v9:<mI9> -> v12:<mI12> [color = "#44dab0"]
-   v9:<mI9> -> v10:<mI10> [color = "#44dab0"]
-   v1:<mI1> -> v2:<mI2> [color = "#d94fa3"]
-   v2:<mI2> -> v3:<mI3> [color = "#57e79c"]
-   v1:<mI1> -> v4:<mI4> [color = "#d94fa3"]
-   v4:<mI4> -> v5:<mI5> [color = "#d45383"]
-   v3:<mI3> -> v6:<mI6> [color = "#a875e1"]
-   v5:<mI5> -> v6:<mI6> [color = "#449b5e"]
-   v5:<mI5> -> v7:<mI7> [color = "#449b5e"]
-   v6:<mI6> -> v7:<mI7> [color = "#eee3bd"]
-   v4:<mI4> -> v7:<mI7> [color = "#d45383"]
-   v7:<mI7> -> v8:<mI8> [color = "#b4eaef"]
-   v7:<mI7> -> v9:<mI9> [color = "#b4eaef"]
-   v8:<mI8> -> v9:<mI9> [color = "#78da67"]
-   v11:<mI11> -> v12:<mI12> [color = "#d8794e"]
-   v10:<mI10> -> v12:<mI12> [color = "#cdc54e"]
-   v10:<mI10> -> v11:<mI11> [color = "#cdc54e"]
+        digraph NetworkGraph01
+        {
+           //graph [charset = "utf8"]
+           rankdir = LR
+           layout = dot
+           splines = spline
+           node [style = "filled, bold", fillcolor = "#f2f4f7", fontname = "Arial"]
+           edge [penwidth = 2]
+           v1 [fontname = "Arial",color = "#305047", shape = record, label = "{  |  |  } |  <mI1> 1. 1 | { |  |  }"]
+   v2 [fontname = "Arial",color = "#ddcf66", shape = record, label = "{  |  |  } |  <mI2> 2. 2 | { |  |  }"]
+   v3 [fontname = "Arial",color = "#365950", shape = record, label = "{  |  |  } |  <mI3> 3. 3 | { |  |  }"]
+   v4 [fontname = "Arial",color = "#586388", shape = record, label = "{  |  |  } |  <mI4> 4. 4 | { |  |  }"]
+   v5 [fontname = "Arial",color = "#45689e", shape = record, label = "{  |  |  } |  <mI5> 5. 5 | { |  |  }"]
+   v1:<mI1> -> v2:<mI2> [color = "#305047"]
+   v2:<mI2> -> v3:<mI3> [color = "#ddcf66"]
+   v1:<mI1> -> v3:<mI3> [color = "#305047"]
+   v2:<mI2> -> v4:<mI4> [color = "#ddcf66"]
+   v1:<mI1> -> v5:<mI5> [color = "#305047"]
+   v3:<mI3> -> v5:<mI5> [color = "#365950"]
+   v4:<mI4> -> v5:<mI5> [color = "#586388"]
 
 }

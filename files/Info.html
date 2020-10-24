@@ -1,567 +1,285 @@
 <!DOCTYPE html>
-<html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <title>Сетевой график</title>
-	<link rel = "stylesheet" href = "Output.css">
-	<link rel = "shorctcut icon" href = "NetDiag.ico">
-  </head>
-  <body>
-    
-	<div class = "text-content">
-	 <h1 class = "align-center">Построение сетевого графика</h1>
-	 <p><b>Сетевой график</b> – это ориентированный граф, где в вершинах 
-	 располагаются выполняемые работы, дугами – изображается связь между ними.  
-	 Каждая вершина содержит несколько параметров, используя необходимые 
-	 формулы можно рассчитать значения в каждой ячейке (рис. 1, формулы (1-5))</p>
-	 
-	 <br />
-	 <table cellspacing = "0" cellpadding = "3" width = "50%" align = "center" class = "imgTable">
-	   <tr align = "center">
-	     <td><img src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9D%7D_i" /></td>
-		 <td><img src="https://math.now.sh?from=T_i" /></td>
-		 <td><img src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9E%7D_i" /></td>
-	   </tr> 
-	   <tr align = "center">
-	     <td colspan = "3"><Номер работы>.<Название задачи></td>
-	   </tr>
-	   <tr align = "center">
-	     <td><img src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9D%7D_i" /></td>
-		 <td><img src="https://math.now.sh?from=R_i" /></td>
-		 <td><img src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9E%7D_i" /></td>
-	   </tr>
-	 </table>
-	 <p class = "smallText"> Рис. 1. Вершина сетевого графика с параметрами </p>
-	 
-	 <!-- Формулы под картинкой с параметрами -->
-	 <p class = "align-center">
-	   <img src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9D%7D_i%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7Bk%7D%29" />
-	   <img src="https://math.now.sh?from=%281%29" style = "padding: 0 3px 3px 10px" />
-	 
-	   <img style = "padding: 0 0 0 80px"
-	   src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9D%7D_i%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_i%20-%20T_i" />
-	   <img src="https://math.now.sh?from=%283%29" style = "padding: 0 3px 3px 20px" />
-	   
-	   <br />
-	   <img style = "padding: 0 0 0 20px"
-	   src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9E%7D_i%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_i%20%2B%20T_i" />
-	   <img src="https://math.now.sh?from=%282%29" style = "padding: 0 3px 3px 20px" />
-	   <img style = "padding: 0 0 0 80px"
-	   src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9E%7D_i%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7Bj%7D%29" />
-	   <img src="https://math.now.sh?from=%284%29" style = "padding: 0 3px 3px 10px" />
-	   
-	   <br />
-	   <img 
-	   src="https://math.now.sh?from=R_i%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_i-T%5E%7B%D0%A0%D0%9E%7D_i%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_i-T%5E%7B%D0%A0%D0%9D%7D_i%20" />
-	   <img src="https://math.now.sh?from=%285%29" style = "padding: 0 3px 3px 20px" />
-	   <p> где <img style = "padding: 20px 17px 0 8px" src="https://math.now.sh?from=i" /> 
-	           - текущая работа <br />
-	           <img  class = "textFormulas" src="https://math.now.sh?from=k%5Cin%20%5Cleft%5C%7Bi-1%2Ci-2%2C...%2Ci-N%5Cright%5C%7D" />
-	           <br /><img class = "textFormulas" src="https://math.now.sh?from=j%5Cin%20%5Cleft%5C%7Bi%2B1%2Ci%2B2%2C...%2Ci%2BN%5Cright%5C%7D" />
-	           <br />
-	           <img class = "textFormulas" 
-			        src="https://math.now.sh?from=T%5E%7B%D0%0A0%D0%9D%7D_i" />
-			   - раннее начало		
-			   
-			   <br />
-			   <img style = "padding: 0px 17px 0 50px"
-			        src="https://math.now.sh?from=T_i" />
-			   - длительность работы
-			   
-			   <br />
-			   <img class = "textFormulas" 
-			        src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9E%7D_i" />
-			   - раннее окончание		
-			   
-			   <br />
-			   <img class = "textFormulas" 
-			        src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9D%7D_i" />
-			   - позднее начало
-			   
-			   <br />
-			   <img class = "textFormulas" 
-			        src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9E%7D_i" />
-		       - позднее окончание
-				
-			   <br />
-			   <img style = "padding: 0px 17px 0 50px"
-			        src="https://math.now.sh?from=R_i" />
-			   - временной резерв
-			   
-	   </p>
-	 </p>
-	 
-     <p> Описание и длительность необходимых работ представлены в таблице 1.</p>
-	 <table cellspacing = "0" cellpadding = "3" width = "50%" align = "center">
-	   <caption class = "smallText"> Таблица 1. Описание выполняемых работ</caption>
-	   <tbody>
-	     <tr align = "center" style = "background-color: #3aa9fe; ">
-	       <th>Номер <br /> работы </th>
-		   <th>Описание работы </th>
-		   <th>Длительность <br />(в днях) </th>
-	     </tr>
-	     <tr class = "selectionColor">
-	       <td align = "center">1.</td>
-		   <td>23423</td>
-		   <td align = "center">12</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">2.</td>
-		   <td>4</td>
-		   <td align = "center">2</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">3.</td>
-		   <td>324324</td>
-		   <td align = "center">3</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">4.</td>
-		   <td>4324</td>
-		   <td align = "center">4</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">5.</td>
-		   <td>4</td>
-		   <td align = "center">5</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">6.</td>
-		   <td>4324</td>
-		   <td align = "center">3</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">7.</td>
-		   <td>432432432</td>
-		   <td align = "center">4</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">8.</td>
-		   <td>32</td>
-		   <td align = "center">3</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">9.</td>
-		   <td>32</td>
-		   <td align = "center">2</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">10.</td>
-		   <td>32</td>
-		   <td align = "center">2</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">11.</td>
-		   <td>423423</td>
-		   <td align = "center">3</td>
-	     </tr>	     <tr class = "selectionColor">
-	       <td align = "center">12.</td>
-		   <td>234</td>
-		   <td align = "center">4</td>
-	     </tr>		</tbody>
-	  </table>
-	  <br />
-	  <p> Последовательность выполнения работ, которая была указана в окне
-	  ввода программы представлена на схеме (рис. 2). </p>
-	  <a href = "NetworkGraph01.svg"><img src = "NetworkGraph01.jpg"
-	     width = 95%
-	  title = "Открыть в полном размере" class = "imgSetting"/></a>
-	  <p class = "smallText"> Рис. 2. Последовательность необходимых работ </p>
-	  
-	  <p> Рассчитаем значения параметров <b>раннего начала</b>
-	  и <b>раннего окончания</b> работ, используя формулы (1), (2). В первой
-	  вершине раннее начало работы будет равно нулю. Все остальные вычисления
-	  размещены в блоке ниже и на сетевом графике (рис. 3):</p>
-	  <!-- формулы в div с полосой прокрутки -->
-	  <div class = "WinFormulas">
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9D%7D_1%20%3D%200" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_1%20%3D
-		  %20T%5E%7B%D0%A0%D0%9D%7D_1%20%2B%20T_1
-		  %3D%200%20%2B%2012%20%3D%2012" />
-	    </p>
+        <html lang="ru">
+          <head>
+            <meta charset="utf-8">
+            <title>Сетевой график</title>
+        	<link rel = "stylesheet" href = "Output.css">
+        	<link rel = "shorctcut icon" href = "NetDiag.ico">
+          </head>
+          <body>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B2%7D%20%3D%2012" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B2%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B2%7D%20%2B%20T_%7B2%7D%3D%2012%20%2B%202%20%3D%2014" />
-	    </p>
+        	<div class = "text-content">
+        	 <h1 class = "align-center">Построение сетевого графика</h1>
+        	 <p><b>Сетевой график</b> – это ориентированный граф, где в вершинах 
+        	 располагаются выполняемые работы, дугами – изображается связь между ними.  
+        	 Каждая вершина содержит несколько параметров, используя необходимые 
+        	 формулы можно рассчитать значения в каждой ячейке (рис. 1, формулы (1-5))</p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B3%7D%20%3D%2014" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B3%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B3%7D%20%2B%20T_%7B3%7D%3D%2014%20%2B%203%20%3D%2017" />
-	    </p>
+        	 <br />
+        	 <table cellspacing = "0" cellpadding = "3" width = "50%" align = "center" class = "imgTable">
+        	   <tr align = "center">
+        	     <td><img src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9D%7D_i" /></td>
+        		 <td><img src="https://math.now.sh?from=T_i" /></td>
+        		 <td><img src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9E%7D_i" /></td>
+        	   </tr> 
+        	   <tr align = "center">
+        	     <td colspan = "3"><Номер работы>.<Название задачи></td>
+        	   </tr>
+        	   <tr align = "center">
+        	     <td><img src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9D%7D_i" /></td>
+        		 <td><img src="https://math.now.sh?from=R_i" /></td>
+        		 <td><img src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9E%7D_i" /></td>
+        	   </tr>
+        	 </table>
+        	 <p class = "smallText"> Рис. 1. Вершина сетевого графика с параметрами </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B4%7D%20%3D%2012" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B4%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B4%7D%20%2B%20T_%7B4%7D%3D%2012%20%2B%204%20%3D%2016" />
-	    </p>
+        	 <!-- Формулы под картинкой с параметрами -->
+        	 <p class = "align-center">
+        	   <img src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9D%7D_i%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7Bk%7D%29" />
+        	   <img src="https://math.now.sh?from=%281%29" style = "padding: 0 3px 3px 10px" />
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B5%7D%20%3D%2016" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B5%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B5%7D%20%2B%20T_%7B5%7D%3D%2016%20%2B%205%20%3D%2021" />
-	    </p>
+        	   <img style = "padding: 0 0 0 80px"
+        	   src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9D%7D_i%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_i%20-%20T_i" />
+        	   <img src="https://math.now.sh?from=%283%29" style = "padding: 0 3px 3px 20px" />
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B6%7D%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7B3%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B5%7D%29%20%3D%20max%2817%2C21%29%20%3D%2021" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B6%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B6%7D%20%2B%20T_%7B6%7D%3D%2021%20%2B%203%20%3D%2024" />
-	    </p>
+        	   <br />
+        	   <img style = "padding: 0 0 0 20px"
+        	   src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9E%7D_i%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_i%20%2B%20T_i" />
+        	   <img src="https://math.now.sh?from=%282%29" style = "padding: 0 3px 3px 20px" />
+        	   <img style = "padding: 0 0 0 80px"
+        	   src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9E%7D_i%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7Bj%7D%29" />
+        	   <img src="https://math.now.sh?from=%284%29" style = "padding: 0 3px 3px 10px" />
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B7%7D%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7B5%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B6%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B4%7D%29%20%3D%20max%2821%2C24%2C16%29%20%3D%2024" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B7%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B7%7D%20%2B%20T_%7B7%7D%3D%2024%20%2B%204%20%3D%2028" />
-	    </p>
+        	   <br />
+        	   <img 
+        	   src="https://math.now.sh?from=R_i%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_i-T%5E%7B%D0%A0%D0%9E%7D_i%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_i-T%5E%7B%D0%A0%D0%9D%7D_i%20" />
+        	   <img src="https://math.now.sh?from=%285%29" style = "padding: 0 3px 3px 20px" />
+        	   <p> где <img style = "padding: 20px 17px 0 8px" src="https://math.now.sh?from=i" /> 
+        	           - текущая работа <br />
+        	           <img  class = "textFormulas" src="https://math.now.sh?from=k%5Cin%20%5Cleft%5C%7Bi-1%2Ci-2%2C...%2Ci-N%5Cright%5C%7D" />
+        	           <br /><img class = "textFormulas" src="https://math.now.sh?from=j%5Cin%20%5Cleft%5C%7Bi%2B1%2Ci%2B2%2C...%2Ci%2BN%5Cright%5C%7D" />
+        	           <br />
+        	           <img class = "textFormulas" 
+        			        src="https://math.now.sh?from=T%5E%7B%D0%0A0%D0%9D%7D_i" />
+        			   - раннее начало		
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B8%7D%20%3D%2028" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B8%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B8%7D%20%2B%20T_%7B8%7D%3D%2028%20%2B%203%20%3D%2031" />
-	    </p>
+        			   <br />
+        			   <img style = "padding: 0px 17px 0 50px"
+        			        src="https://math.now.sh?from=T_i" />
+        			   - длительность работы
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B9%7D%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7B7%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B8%7D%29%20%3D%20max%2828%2C31%29%20%3D%2031" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B9%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B9%7D%20%2B%20T_%7B9%7D%3D%2031%20%2B%202%20%3D%2033" />
-	    </p>
+        			   <br />
+        			   <img class = "textFormulas" 
+        			        src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9E%7D_i" />
+        			   - раннее окончание		
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B10%7D%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7B8%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B9%7D%29%20%3D%20max%2831%2C33%29%20%3D%2033" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B10%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B10%7D%20%2B%20T_%7B10%7D%3D%2033%20%2B%202%20%3D%2035" />
-	    </p>
+        			   <br />
+        			   <img class = "textFormulas" 
+        			        src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9D%7D_i" />
+        			   - позднее начало
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B11%7D%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7B9%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B10%7D%29%20%3D%20max%2833%2C35%29%20%3D%2035" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B11%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B11%7D%20%2B%20T_%7B11%7D%3D%2035%20%2B%203%20%3D%2038" />
-	    </p>
+        			   <br />
+        			   <img class = "textFormulas" 
+        			        src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9E%7D_i" />
+        		       - позднее окончание
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%A0%D0%9D%7D_%7B12%7D%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7B9%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B11%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B10%7D%29%20%3D%20max%2833%2C38%2C35%29%20%3D%2038" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-		  T%5E%7B%D0%A0%D0%9E%7D_%7B12%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B12%7D%20%2B%20T_%7B12%7D%3D%2038%20%2B%204%20%3D%2042" />
-	    </p>
-	  </div>
+        			   <br />
+        			   <img style = "padding: 0px 17px 0 50px"
+        			        src="https://math.now.sh?from=R_i" />
+        			   - временной резерв
 
-	  <a href = "NetworkGraph02.svg"><img src = "NetworkGraph02.jpg"
-	     width = "95%"
-	  title = "Открыть в полном размере" class = "imgSetting"/></a>
-	  <p class = "smallText"> Рис. 3. Результаты вычислений
-	  раннего начала и окончания работ</p>
-	  
+        	   </p>
+        	 </p>
 
-	  <p> Следующий этап построения сетевого графика заключается в
-	  нахождении <b>позднего окончания</b>, <b>позднего начала</b> и
-	  <b>резерва времени</b> проводимых работ. В конечной работе <b>«12. 234»</b> значения позднего 
-	  начала и окончания работ соответствуют раннему началу и раннему
-	  окончанию работ. Все расчеты (рис. 4) проводятся от последней работы в
-	  обратном направлении стрелочек по формулам (3), (4), (5):</p>
-	  <div class = "WinFormulas">
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9E%7D_%7B12%7D%20%3D%2042" />
-           </p>
-            <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B12%7D%20%3D%2038" />
-            </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B12%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B12%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B12%7D%20%3D%2038%20-%2038%20%3D%200" />
-	    </p>
+             <p> Описание и длительность необходимых работ представлены в таблице 1.</p>
+        	 <table cellspacing = "0" cellpadding = "3" width = "50%" align = "center">
+        	   <caption class = "smallText"> Таблица 1. Описание выполняемых работ</caption>
+        	   <tbody>
+        	     <tr align = "center" style = "background-color: #3aa9fe; ">
+        	       <th>Номер <br /> работы </th>
+        		   <th>Описание работы </th>
+        		   <th>Длительность <br />(в днях) </th>
+        	     </tr>
+        	     <tr class = "selectionColor">
+        	       <td align = "center">1.</td>
+        		   <td>1</td>
+        		   <td align = "center">1</td>
+        	     </tr>	     <tr class = "selectionColor">
+        	       <td align = "center">2.</td>
+        		   <td>2</td>
+        		   <td align = "center">2</td>
+        	     </tr>	     <tr class = "selectionColor">
+        	       <td align = "center">3.</td>
+        		   <td>3</td>
+        		   <td align = "center">3</td>
+        	     </tr>	     <tr class = "selectionColor">
+        	       <td align = "center">4.</td>
+        		   <td>4</td>
+        		   <td align = "center">4</td>
+        	     </tr>	     <tr class = "selectionColor">
+        	       <td align = "center">5.</td>
+        		   <td>5</td>
+        		   <td align = "center">5</td>
+        	     </tr>		</tbody>
+        	  </table>
+        	  <br />
+        	  <p> Последовательность выполнения работ, которая была указана в окне
+        	  ввода программы представлена на схеме (рис. 2). </p>
+        	  <a href = "NetworkGraph01.svg"><img src = "NetworkGraph01.jpg"
+        	     width = 70%
+        	  title = "Открыть в полном размере" class = "imgSetting"/></a>
+        	  <p class = "smallText"> Рис. 2. Последовательность необходимых работ </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B11%7D%20%3D%2038" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B11%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B11%7D-T_%7B11%7D%20%3D%2038%20-%203%20%3D%2035" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B11%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B11%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B11%7D%20%3D%2035%20-%2035%20%3D%200" />
-	    </p>
+        	  <p> Рассчитаем значения параметров <b>раннего начала</b>
+        	  и <b>раннего окончания</b> работ, используя формулы (1), (2). В первой
+        	  вершине раннее начало работы будет равно нулю. Все остальные вычисления
+        	  размещены в блоке ниже и на сетевом графике (рис. 3):</p>
+        	  <!-- формулы в div с полосой прокрутки -->
+        	  <div class = "WinFormulas">
+        	    <p style = "padding: 0">
+        	      <img src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9D%7D_1%20%3D%200" />
+        	    </p>
+        	    <p style = "padding: 0 0 20px 0">
+        	      <img src="https://math.now.sh?from=
+        		  T%5E%7B%D0%A0%D0%9E%7D_1%20%3D
+        		  %20T%5E%7B%D0%A0%D0%9D%7D_1%20%2B%20T_1
+        		  %3D%200%20%2B%201%20%3D%201" />
+        	    </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B10%7D%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7B11%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B12%7D%29%20%3D%20min%2835%2C38%29%20%3D%2035" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B10%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B10%7D-T_%7B10%7D%20%3D%2035%20-%202%20%3D%2033" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B10%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B10%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B10%7D%20%3D%2033%20-%2033%20%3D%200" />
-	    </p>
+        		<p style = "padding: 0">
+    	      <img src="https://math.now.sh?from=
+                              T%5E%7B%D0%A0%D0%9D%7D_%7B2%7D%20%3D%201" />
+                         </p>
+                         <p style = "padding: 0 0 20px 0">
+                           <img src="https://math.now.sh?from=
+                           T%5E%7B%D0%A0%D0%9E%7D_%7B2%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B2%7D%20%2B%20T_%7B2%7D%3D%201%20%2B%202%20%3D%203" />
+        	    </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B9%7D%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7B10%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B11%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B12%7D%29%20%3D%20min%2833%2C35%2C38%29%20%3D%2033" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B9%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B9%7D-T_%7B9%7D%20%3D%2033%20-%202%20%3D%2031" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B9%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B9%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B9%7D%20%3D%2031%20-%2031%20%3D%200" />
-	    </p>
+        		<p style = "padding: 0">
+    	      <img src="https://math.now.sh?from=
+                              T%5E%7B%D0%A0%D0%9D%7D_%7B3%7D%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7B2%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B1%7D%29%20%3D%20max%283%2C1%29%20%3D%203" />
+                         </p>
+                         <p style = "padding: 0 0 20px 0">
+                           <img src="https://math.now.sh?from=
+                           T%5E%7B%D0%A0%D0%9E%7D_%7B3%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B3%7D%20%2B%20T_%7B3%7D%3D%203%20%2B%203%20%3D%206" />
+        	    </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B8%7D%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7B10%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B9%7D%29%20%3D%20min%2833%2C31%29%20%3D%2031" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B8%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B8%7D-T_%7B8%7D%20%3D%2031%20-%203%20%3D%2028" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B8%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B8%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B8%7D%20%3D%2028%20-%2028%20%3D%200" />
-	    </p>
+        		<p style = "padding: 0">
+    	      <img src="https://math.now.sh?from=
+                              T%5E%7B%D0%A0%D0%9D%7D_%7B4%7D%20%3D%203" />
+                         </p>
+                         <p style = "padding: 0 0 20px 0">
+                           <img src="https://math.now.sh?from=
+                           T%5E%7B%D0%A0%D0%9E%7D_%7B4%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B4%7D%20%2B%20T_%7B4%7D%3D%203%20%2B%204%20%3D%207" />
+        	    </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B7%7D%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7B8%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B9%7D%29%20%3D%20min%2828%2C31%29%20%3D%2028" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B7%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B7%7D-T_%7B7%7D%20%3D%2028%20-%204%20%3D%2024" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B7%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B7%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B7%7D%20%3D%2024%20-%2024%20%3D%200" />
-	    </p>
+        		<p style = "padding: 0">
+    	      <img src="https://math.now.sh?from=
+                              T%5E%7B%D0%A0%D0%9D%7D_%7B5%7D%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7B1%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B3%7D%2CT%5E%7B%D0%A0%D0%9E%7D_%7B4%7D%29%20%3D%20max%281%2C6%2C7%29%20%3D%207" />
+                         </p>
+                         <p style = "padding: 0 0 20px 0">
+                           <img src="https://math.now.sh?from=
+                           T%5E%7B%D0%A0%D0%9E%7D_%7B5%7D%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_%7B5%7D%20%2B%20T_%7B5%7D%3D%207%20%2B%205%20%3D%2012" />
+        	    </p>
+        	  </div>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B6%7D%20%3D%2024" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B6%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B6%7D-T_%7B6%7D%20%3D%2024%20-%203%20%3D%2021" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B6%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B6%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B6%7D%20%3D%2021%20-%2021%20%3D%200" />
-	    </p>
+        	  <a href = "NetworkGraph02.svg"><img src = "NetworkGraph02.jpg"
+        	     width = "70%"
+        	  title = "Открыть в полном размере" class = "imgSetting"/></a>
+        	  <p class = "smallText"> Рис. 3. Результаты вычислений
+        	  раннего начала и окончания работ</p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B5%7D%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7B6%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B7%7D%29%20%3D%20min%2821%2C24%29%20%3D%2021" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B5%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B5%7D-T_%7B5%7D%20%3D%2021%20-%205%20%3D%2016" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B5%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B5%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B5%7D%20%3D%2016%20-%2016%20%3D%200" />
-	    </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B4%7D%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7B5%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B7%7D%29%20%3D%20min%2816%2C24%29%20%3D%2016" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B4%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B4%7D-T_%7B4%7D%20%3D%2016%20-%204%20%3D%2012" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B4%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B4%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B4%7D%20%3D%2012%20-%2012%20%3D%200" />
-	    </p>
+        	  <p> Следующий этап построения сетевого графика заключается в
+        	  нахождении <b>позднего окончания</b>, <b>позднего начала</b> и
+        	  <b>резерва времени</b> проводимых работ. В конечной работе <b>«5. 5»</b> значения позднего 
+                   начала и окончания работ соответствуют раннему началу и раннему
+                   окончанию работ. Все расчеты (рис. 4) проводятся от последней работы в
+                   обратном направлении стрелочек по формулам (3), (4), (5):</p>
+                   <div class = "WinFormulas">
+        	    <p style = "padding: 0">
+        	      <img src="https://math.now.sh?from=
+        	      T%5E%7B%D0%9F%D0%9E%7D_%7B5%7D%20%3D%2012" />
+                   </p>
+                           <p style = "padding: 0">
+                         <img src="https://math.now.sh?from=
+                         T%5E%7B%D0%9F%D0%9D%7D_%7B5%7D%20%3D%207" />
+                    </p>
+        	    <p style = "padding: 0 0 20px 0">
+        	      <img src="https://math.now.sh?from=
+        	      R_%7B5%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B5%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B5%7D%20%3D%207%20-%207%20%3D%200" />
+        	    </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B3%7D%20%3D%2021" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B3%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B3%7D-T_%7B3%7D%20%3D%2021%20-%203%20%3D%2018" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B3%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B3%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B3%7D%20%3D%2018%20-%2014%20%3D%204" />
-	    </p>
+        		<p style = "padding: 0">
+    	      <img src="https://math.now.sh?from=
+                              T%5E%7B%D0%9F%D0%9E%7D_%7B4%7D%20%3D%207" /></p>
+                           <p style = "padding: 0">
+                             <img src="https://math.now.sh?from=
+                             T%5E%7B%D0%9F%D0%9D%7D_%7B4%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B4%7D-T_%7B4%7D%20%3D%207%20-%204%20%3D%203" />
+        	    </p>
+        	    <p style = "padding: 0 0 20px 0">
+        	      <img src="https://math.now.sh?from=
+        	      R_%7B4%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B4%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B4%7D%20%3D%203%20-%203%20%3D%200" />
+        	    </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B2%7D%20%3D%2018" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B2%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B2%7D-T_%7B2%7D%20%3D%2018%20-%202%20%3D%2016" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B2%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B2%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B2%7D%20%3D%2016%20-%2012%20%3D%204" />
-	    </p>
+        		<p style = "padding: 0">
+    	      <img src="https://math.now.sh?from=
+                              T%5E%7B%D0%9F%D0%9E%7D_%7B3%7D%20%3D%207" /></p>
+                           <p style = "padding: 0">
+                             <img src="https://math.now.sh?from=
+                             T%5E%7B%D0%9F%D0%9D%7D_%7B3%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B3%7D-T_%7B3%7D%20%3D%207%20-%203%20%3D%204" />
+        	    </p>
+        	    <p style = "padding: 0 0 20px 0">
+        	      <img src="https://math.now.sh?from=
+        	      R_%7B3%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B3%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B3%7D%20%3D%204%20-%203%20%3D%201" />
+        	    </p>
 
-		<p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-                          T%5E%7B%D0%9F%D0%9E%7D_%7B1%7D%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7B2%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B4%7D%29%20%3D%20min%2816%2C12%29%20%3D%2012" /></p>
-	    <p style = "padding: 0">
-	      <img src="https://math.now.sh?from=
-	      T%5E%7B%D0%9F%D0%9D%7D_%7B1%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B1%7D-T_%7B1%7D%20%3D%2012%20-%2012%20%3D%200" />
-	    </p>
-	    <p style = "padding: 0 0 20px 0">
-	      <img src="https://math.now.sh?from=
-	      R_%7B1%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B1%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B1%7D%20%3D%200%20-%200%20%3D%200" />
-	    </p>	
-	  </div>
-	  <a href = "NetworkGraph.svg"><img src = "NetworkGraph.jpg"
-	     width =  "95%" title = "Открыть в полном размере"
-             class = "imgSetting"/></a>
-	  <p class = "smallText"> Рис. 4. Результаты построения
-	  сетевого графика</p>
-	  	  
-	  <p>Вычислим резервы времени по каждому из путей:</p>
-	  <div class = "WinFormulas">
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜8➜10➜12</div> : 
-                                                                                         42 - (12 + 2 + 3 + 3 + 4 + 3 + 2 + 4) = 42 - 33 = 9</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜8➜10➜11➜12</div> : 
-                                                                                            42 - (12 + 2 + 3 + 3 + 4 + 3 + 2 + 3 + 4) = 42 - 36 = 6</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜8➜9➜11➜12</div> : 
-                                                                                           42 - (12 + 2 + 3 + 3 + 4 + 3 + 2 + 3 + 4) = 42 - 36 = 6</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜8➜9➜12</div> : 
-                                                                                        42 - (12 + 2 + 3 + 3 + 4 + 3 + 2 + 4) = 42 - 33 = 9</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜8➜9➜10➜12</div> : 
-                                                                                           42 - (12 + 2 + 3 + 3 + 4 + 3 + 2 + 2 + 4) = 42 - 35 = 7</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜8➜9➜10➜11➜12</div> : 
-                                                                                              42 - (12 + 2 + 3 + 3 + 4 + 3 + 2 + 2 + 3 + 4) = 42 - 38 = 4</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜9➜11➜12</div> : 
-                                                                                         42 - (12 + 2 + 3 + 3 + 4 + 2 + 3 + 4) = 42 - 33 = 9</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜9➜12</div> : 
-                                                                                      42 - (12 + 2 + 3 + 3 + 4 + 2 + 4) = 42 - 30 = 12</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜9➜10➜12</div> : 
-                                                                                         42 - (12 + 2 + 3 + 3 + 4 + 2 + 2 + 4) = 42 - 32 = 10</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜6➜7➜9➜10➜11➜12</div> : 
-                                                                                            42 - (12 + 2 + 3 + 3 + 4 + 2 + 2 + 3 + 4) = 42 - 35 = 7</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜8➜10➜12</div> : 
-                                                                                         42 - (12 + 4 + 5 + 3 + 4 + 3 + 2 + 4) = 42 - 37 = 5</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜8➜10➜11➜12</div> : 
-                                                                                            42 - (12 + 4 + 5 + 3 + 4 + 3 + 2 + 3 + 4) = 42 - 40 = 2</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜8➜9➜11➜12</div> : 
-                                                                                           42 - (12 + 4 + 5 + 3 + 4 + 3 + 2 + 3 + 4) = 42 - 40 = 2</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜8➜9➜12</div> : 
-                                                                                        42 - (12 + 4 + 5 + 3 + 4 + 3 + 2 + 4) = 42 - 37 = 5</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜8➜9➜10➜12</div> : 
-                                                                                           42 - (12 + 4 + 5 + 3 + 4 + 3 + 2 + 2 + 4) = 42 - 39 = 3</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜8➜9➜10➜11➜12</div> : 
-                                                                                              42 - (12 + 4 + 5 + 3 + 4 + 3 + 2 + 2 + 3 + 4) = 42 - 42 = 0</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜9➜11➜12</div> : 
-                                                                                         42 - (12 + 4 + 5 + 3 + 4 + 2 + 3 + 4) = 42 - 37 = 5</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜9➜12</div> : 
-                                                                                      42 - (12 + 4 + 5 + 3 + 4 + 2 + 4) = 42 - 34 = 8</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜9➜10➜12</div> : 
-                                                                                         42 - (12 + 4 + 5 + 3 + 4 + 2 + 2 + 4) = 42 - 36 = 6</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜6➜7➜9➜10➜11➜12</div> : 
-                                                                                            42 - (12 + 4 + 5 + 3 + 4 + 2 + 2 + 3 + 4) = 42 - 39 = 3</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜8➜10➜12</div> : 
-                                                                                       42 - (12 + 4 + 5 + 4 + 3 + 2 + 4) = 42 - 34 = 8</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜8➜10➜11➜12</div> : 
-                                                                                          42 - (12 + 4 + 5 + 4 + 3 + 2 + 3 + 4) = 42 - 37 = 5</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜8➜9➜11➜12</div> : 
-                                                                                         42 - (12 + 4 + 5 + 4 + 3 + 2 + 3 + 4) = 42 - 37 = 5</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜8➜9➜12</div> : 
-                                                                                      42 - (12 + 4 + 5 + 4 + 3 + 2 + 4) = 42 - 34 = 8</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜8➜9➜10➜12</div> : 
-                                                                                         42 - (12 + 4 + 5 + 4 + 3 + 2 + 2 + 4) = 42 - 36 = 6</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜8➜9➜10➜11➜12</div> : 
-                                                                                            42 - (12 + 4 + 5 + 4 + 3 + 2 + 2 + 3 + 4) = 42 - 39 = 3</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜9➜11➜12</div> : 
-                                                                                       42 - (12 + 4 + 5 + 4 + 2 + 3 + 4) = 42 - 34 = 8</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜9➜12</div> : 
-                                                                                    42 - (12 + 4 + 5 + 4 + 2 + 4) = 42 - 31 = 11</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜9➜10➜12</div> : 
-                                                                                       42 - (12 + 4 + 5 + 4 + 2 + 2 + 4) = 42 - 33 = 9</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜5➜7➜9➜10➜11➜12</div> : 
-                                                                                          42 - (12 + 4 + 5 + 4 + 2 + 2 + 3 + 4) = 42 - 36 = 6</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜8➜10➜12</div> : 
-                                                                                     42 - (12 + 4 + 4 + 3 + 2 + 4) = 42 - 29 = 13</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜8➜10➜11➜12</div> : 
-                                                                                        42 - (12 + 4 + 4 + 3 + 2 + 3 + 4) = 42 - 32 = 10</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜8➜9➜11➜12</div> : 
-                                                                                       42 - (12 + 4 + 4 + 3 + 2 + 3 + 4) = 42 - 32 = 10</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜8➜9➜12</div> : 
-                                                                                    42 - (12 + 4 + 4 + 3 + 2 + 4) = 42 - 29 = 13</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜8➜9➜10➜12</div> : 
-                                                                                       42 - (12 + 4 + 4 + 3 + 2 + 2 + 4) = 42 - 31 = 11</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜8➜9➜10➜11➜12</div> : 
-                                                                                          42 - (12 + 4 + 4 + 3 + 2 + 2 + 3 + 4) = 42 - 34 = 8</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜9➜11➜12</div> : 
-                                                                                     42 - (12 + 4 + 4 + 2 + 3 + 4) = 42 - 29 = 13</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜9➜12</div> : 
-                                                                                  42 - (12 + 4 + 4 + 2 + 4) = 42 - 26 = 16</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜9➜10➜12</div> : 
-                                                                                     42 - (12 + 4 + 4 + 2 + 2 + 4) = 42 - 28 = 14</div>
-		<hr> 
-	    <div class = "divIndent"> Путь <div class = "colorPath">1➜4➜7➜9➜10➜11➜12</div> : 
-                                                                                        42 - (12 + 4 + 4 + 2 + 2 + 3 + 4) = 42 - 31 = 11</div>
-		<hr> <div class = "divIndent">Критический путь: <div class = "colorCrPath">1➜4➜5➜6➜7➜8➜9➜10➜11➜12</div></div>
-	  </div>
-   </div>
- </body>
-</html>
+        		<p style = "padding: 0">
+    	      <img src="https://math.now.sh?from=
+                              T%5E%7B%D0%9F%D0%9E%7D_%7B2%7D%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7B3%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B4%7D%29%20%3D%20min%284%2C3%29%20%3D%203" /></p>
+                           <p style = "padding: 0">
+                             <img src="https://math.now.sh?from=
+                             T%5E%7B%D0%9F%D0%9D%7D_%7B2%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B2%7D-T_%7B2%7D%20%3D%203%20-%202%20%3D%201" />
+        	    </p>
+        	    <p style = "padding: 0 0 20px 0">
+        	      <img src="https://math.now.sh?from=
+        	      R_%7B2%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B2%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B2%7D%20%3D%201%20-%201%20%3D%200" />
+        	    </p>
+
+        		<p style = "padding: 0">
+    	      <img src="https://math.now.sh?from=
+                              T%5E%7B%D0%9F%D0%9E%7D_%7B1%7D%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7B2%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B3%7D%2CT%5E%7B%D0%9F%D0%9D%7D_%7B5%7D%29%20%3D%20min%281%2C4%2C7%29%20%3D%201" /></p>
+                           <p style = "padding: 0">
+                             <img src="https://math.now.sh?from=
+                             T%5E%7B%D0%9F%D0%9D%7D_%7B1%7D%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_%7B1%7D-T_%7B1%7D%20%3D%201%20-%201%20%3D%200" />
+        	    </p>
+        	    <p style = "padding: 0 0 20px 0">
+        	      <img src="https://math.now.sh?from=
+        	      R_%7B1%7D%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_%7B1%7D-T%5E%7B%D0%A0%D0%9D%7D_%7B1%7D%20%3D%200%20-%200%20%3D%200" />
+        	    </p>	
+        	  </div>
+        	  <a href = "NetworkGraph.svg"><img src = "NetworkGraph.jpg"
+        	     width =  "70%" title = "Открыть в полном размере"
+                     class = "imgSetting"/></a>
+        	  <p class = "smallText"> Рис. 4. Результаты построения
+        	  сетевого графика</p>
+
+        	  <p>Вычислим резервы времени по каждому из путей:</p>
+        	  <div class = "WinFormulas">
+        	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜3➜5</div> : 
+                                                                                       12 - (1 + 2 + 3 + 5) = 12 - 11 = 1</div>
+        		<hr> 
+        	    <div class = "divIndent"> Путь <div class = "colorPath">1➜2➜4➜5</div> : 
+                                                                                       12 - (1 + 2 + 4 + 5) = 12 - 12 = 0</div>
+        		<hr> 
+        	    <div class = "divIndent"> Путь <div class = "colorPath">1➜3➜5</div> : 
+                                                                                     12 - (1 + 3 + 5) = 12 - 9 = 3</div>
+        		<hr> 
+        	    <div class = "divIndent"> Путь <div class = "colorPath">1➜5</div> : 
+                                                                                   12 - (1 + 5) = 12 - 6 = 6</div>
+        		<hr> <div class = "divIndent">Критический путь: <div class = "colorCrPath">1➜2➜4➜5</div></div>
+        	  </div>
+           </div>
+         </body>
+        </html>
+        

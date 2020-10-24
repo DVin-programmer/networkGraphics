@@ -331,6 +331,7 @@ def chartCreation(lstBtn):
         #Значение по ключу(номеру вершины)
         lstBtnSort2 = lstBtnSort[l].split('_')
         lstGet_dictInVtx = dictInVtx.get(int(lstBtnSort2[1]))
+        print("lstGet_dictInVtx:",lstGet_dictInVtx)
         if lstGet_dictInVtx != None:
             dictInVtx.update({int(lstBtnSort2[1]):lstGet_dictInVtx+\
                               [int(lstBtnSort2[0])]})
