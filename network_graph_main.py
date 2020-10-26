@@ -43,6 +43,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         MainWindow.resize(572, 550)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.setMaximumSize(572, 550)
 
         font = QtGui.QFont()
         font.setFamily("Bahnschrift SemiLight SemiConde")
@@ -51,7 +52,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
 
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(30, 40, 181, 16))
+        self.label.setGeometry(QtCore.QRect(30, 38, 181, 20))
         self.label.setObjectName("label")
         self.label.setFont(font)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -366,7 +367,7 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
         размещает кнопки для выбора работ.
         '''
         self.setWindowTitle("Порядок выполнения работ")
-        self.resize(500, 500)
+        self.resize(700, 500)
         self.setMaximumSize(1000, 700)
 
         self.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
@@ -625,7 +626,7 @@ class BuildingNetworkGraph():
             else:
                 dict_in_vtx_rev.update({int(lst_btn_sort2_rev[0]):
                                          [int(lst_btn_sort2_rev[1])]})
-        #print("dict_in_vtx_rev:", dict_in_vtx_rev, "\n")
+        print("dict_in_vtx_rev:", dict_in_vtx_rev, "\n")
 
 
         # Заполнение вершин (проход в обратную сторону)
@@ -732,14 +733,24 @@ class BuildingNetworkGraph():
         print(tuple_lst_link_vtx)
 
         # Нахождение всех путей для вычисления резервов
-        G = nx.Graph()
-        G.add_edges_from(tuple_lst_link_vtx)
-        reserves = list(nx.all_simple_paths(G, source=1, target=num_str_in_table))
-        print("reserves:", reserves)
+        #G = nx.Graph()
+        #G.add_edges_from(tuple_lst_link_vtx)
 
-        # Поиск индексов для создания нового списка.
+        #reserves = list(nx.all_simple_paths(G, source=1, target=num_str_in_table))
+        #print("reserves:", reserves)
+        G = nx.DiGraph(tuple_lst_link_vtx)
+        '''roots = (v for v, d in G.in_degree() if d == 0)
+        leaves = [v for v, d in G.out_degree() if d == 0]
+        reserves = []
+        for root in roots:
+            paths = nx.all_simple_paths(G, root, leaves)
+            reserves.extend(paths)'''
+        reserves = list(nx.all_simple_paths(G, source=1, target=num_str_in_table))
+        print("reserves:", reserves,"\nКоличество путей:", len(reserves))
+
+        ''''# Поиск индексов для создания нового списка.
         # В найденных списках пути указаны не по возрастанию вершин, поэтому
-        # они не входят в новый списко reserves_new.
+        # они не входят в новый список reserves_new.
         lst_index_del = []
         for t in range(0, len(reserves)):
             if reserves[t] != sorted(reserves[t]):
@@ -752,9 +763,9 @@ class BuildingNetworkGraph():
         for t in range(0, len(reserves)):
             if not (t in lst_index_del):
                 reserves_new.append(reserves[t])
-                print(t,reserves_new)
+                #print(t,reserves_new)
         print("------------------------")
-        print("Пути:",reserves_new, "\nКоличество путей:", len(reserves_new))
+        #print("Пути:",reserves_new, "\nКоличество путей:", len(reserves_new))'''
 
         # Запись вершин в файл
         for i in range(0, len(lst_btn_sort)):
@@ -844,11 +855,11 @@ class BuildingNetworkGraph():
         # Вычисление резервов
         str_value_lst1 = []
         int_value_lst1 = []
-        for i in range(0, len(reserves_new)):
+        for i in range(0, len(reserves)):
             str_value_lst2 = []
             int_value_lst2 = []
-            for l in range(0, len(reserves_new[i])):
-                k = reserves_new[i][l]
+            for l in range(0, len(reserves[i])):
+                k = reserves[i][l]
                 str_value_lst2.append(str(dict_vtx_value_all[k][1]))
                 int_value_lst2.append(dict_vtx_value_all[k][1])
             str_value_lst1.append(str_value_lst2)
@@ -1103,10 +1114,10 @@ class BuildingNetworkGraph():
         arrow = "➜"
         # Преобразование путей в str
         ReservesNewStr1 = []
-        for i in range(0, len(reserves_new)):
+        for i in range(0, len(reserves)):
             ReservesNewStr2 = []
-            for l in range(0, len(reserves_new[i])):
-                ReservesNewStr2.append(str(reserves_new[i][l]))
+            for l in range(0, len(reserves[i])):
+                ReservesNewStr2.append(str(reserves[i][l]))
             ReservesNewStr1.append(ReservesNewStr2)
 
         for i in range(0, len(str_value_lst1)):
