@@ -37,6 +37,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #self.setFixedSize(750, 728)
         self.setupUi(self)
         self.setWindowTitle("Построение сетевого графика")
+        global flag_win_order_of_work
+        flag_win_order_of_work = False
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -45,29 +47,29 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.setMaximumSize(572, 550)
 
-        font = QtGui.QFont()
-        font.setFamily("Bahnschrift SemiLight SemiConde")
-        font.setPointSize(12)
+        self.font = QtGui.QFont()
+        self.font.setFamily("Bahnschrift SemiLight SemiConde")
+        self.font.setPointSize(12)
 
         self.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
 
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(30, 38, 181, 20))
+        self.label.setGeometry(QtCore.QRect(20, 38, 181, 20))
         self.label.setObjectName("label")
-        self.label.setFont(font)
+        self.label.setFont(self.font)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.spinBox_num_jobs = QtWidgets.QSpinBox(self.centralwidget)
-        self.spinBox_num_jobs.setGeometry(QtCore.QRect(220, 39, 42, 22))
+        self.spinBox_num_jobs.setGeometry(QtCore.QRect(210, 39, 42, 22))
         self.spinBox_num_jobs.setValue(5)
         self.spinBox_num_jobs.setObjectName("spinBox_num_jobs")
-        self.spinBox_num_jobs.setFont(font)
+        self.spinBox_num_jobs.setFont(self.font)
 
         self.pushButton_next = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_next.setGeometry(QtCore.QRect(290, 36, 75, 27))
+        self.pushButton_next.setGeometry(QtCore.QRect(270, 36, 75, 27))
         self.pushButton_next.setObjectName("pushButton_next")
         self.pushButton_next.clicked.connect(self.create_table)
-        self.pushButton_next.setFont(font)
+        self.pushButton_next.setFont(self.font)
         background_color = "#51d77a"
         border_color = "#2d8849"
         color = "#2d8849"
@@ -87,9 +89,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                     border_width, border_radius)
 
         self.pushButton_reset = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_reset.setGeometry(QtCore.QRect(390, 36, 85, 27))
+        self.pushButton_reset.setGeometry(QtCore.QRect(370, 36, 180, 27))
         self.pushButton_reset.setObjectName("pushButton_reset")
-        self.pushButton_reset.setFont(font)
+        self.pushButton_reset.setFont(self.font)
         self.pushButton_reset.clicked.connect(self.clear_info)
         background_color = "#fa7070"
         border_color = "#9a2222"
@@ -112,18 +114,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #self.setCentralWidget(central_widget)
         #self.setWindowTitle("Сведения об экзаменуемых")
 
-        '''self.left = 20
-        self.top = 70
-        self.width = 700
-        self.height = 200
-        self.setGeometry(self.left, self.top, self.width, self.height)'''
-
-        font = QtGui.QFont()
-        font.setFamily("Bahnschrift SemiLight SemiConde")
-        font.setPointSize(12)
+        self.font = QtGui.QFont()
+        self.font.setFamily("Bahnschrift SemiLight SemiConde")
+        self.font.setPointSize(12)
 
         self.table_jobs = QtWidgets.QTableWidget(self.centralwidget)  # Создаём таблицу
-        self.table_jobs.setFont(font)
+        self.table_jobs.setFont(self.font)
         self.table_jobs.setColumnCount(3)  # Устанавливаем 5 столбцов
         # Прописываем наименование столбцов
         self.table_jobs.setHorizontalHeaderLabels(["Номер \n работы", "Описание работы",
@@ -137,10 +133,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.pushButton_order_of_work = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_order_of_work.setText("Установить порядок \n выполнения работ")
-        self.pushButton_order_of_work.setGeometry(QtCore.QRect(390, 450, 150, 54))
+        self.pushButton_order_of_work.setGeometry(QtCore.QRect(380, 450, 150, 54))
         self.pushButton_order_of_work.setObjectName("pushButton_order_of_work")
         self.pushButton_order_of_work.clicked.connect(self.check_table)
-        self.pushButton_order_of_work.setFont(font)
+        self.pushButton_order_of_work.setFont(self.font)
         background_color = "#6cbef1"
         border_color = "#155b87"
         color = "#155b87"
@@ -180,7 +176,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton_next.setText(_translate("MainWindow", "Далее"))
-        self.pushButton_reset.setText(_translate("MainWindow", "Сбросить"))
+        self.pushButton_reset.setText(_translate("MainWindow", "Создать новую таблицу"))
         self.label.setText(_translate("MainWindow", "Выберите количество работ:"))
 
     def create_table(self):
@@ -188,9 +184,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         Создание таблицы с необходимым количеством строк,
         указанных в spinBox
         '''
-        font = QtGui.QFont()
-        font.setFamily("Bahnschrift SemiLight SemiConde")
-        font.setPointSize(11)
+        print("Create_table")
+        self.font = QtGui.QFont()
+        self.font.setFamily("Bahnschrift SemiLight SemiConde")
+        self.font.setPointSize(11)
 
         self.msg_box = QtWidgets.QMessageBox()
         self.msg_box.setFixedSize(100, 500)
@@ -202,7 +199,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.msg_box.setIcon(QtWidgets.QMessageBox.Warning)
             self.msg_box.setWindowTitle("Предупреждение")
             self.msg_box.setText("Введите большее количество работ!")
-            self.msg_box.setFont(font)
+            self.msg_box.setFont(self.font)
             self.msg_box.exec()
         else:
             # Делаем кнопку неактивной, задаем стиль
@@ -220,7 +217,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             self.table_jobs.setVisible(True)
             self.table_jobs.setRowCount(self.num_str_in_table)  # строки
-            self.table_jobs.setFont(font)
+            self.table_jobs.setFont(self.font)
 
             # Удаление номеров
             self.table_jobs.verticalHeader().setVisible(False)
@@ -240,9 +237,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             # Заполнение остальных ячеек
             for i in range(0, self.num_str_in_table):
                 for j in range(1, 3):
-                    cell = QtWidgets.QTableWidgetItem(str(i+1))
-                    self.table_jobs.setItem(i, j, cell)
-                    cell.setTextAlignment(QtCore.Qt.AlignCenter)
+                    self.cell = QtWidgets.QTableWidgetItem(str(i+1))
+                    self.table_jobs.setItem(i, j, self.cell)
+                    self.cell.setTextAlignment(QtCore.Qt.AlignCenter)
                     #cell.setFlags(QtCore.Qt.ItemIsEnabled)
 
     def check_table(self):
@@ -330,11 +327,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                        background_color_hover, border_color_hover, color_hover,
                                        background_color_press, border_color_press, color_press,
                                        border_width, border_radius)
+
         self.order_of_work.close()
 
     def open_win_order_of_work(self):
+        # Смещаем главное окно, чтобы было видно дочернее
+        self.left = 30
+        self.top = 70
+        self.setGeometry(self.left, self.top, 572, 550)
+
         self.order_of_work.show()
         self.order_of_work.add_buttons(self.num_str_in_table)
+
         self.pushButton_order_of_work.setEnabled(False)
         self.pushButton_order_of_work.setStyleSheet('''
                                     background-color: "#cccccc";
@@ -343,6 +347,40 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                     border-width: 1px;
                                     border-radius: 2px;
                                     color: "#909090";''')
+        self.order_of_work.pushButton_cancel_building.clicked.connect(self.cancel_building)
+
+    def cancel_building(self):
+        '''
+        Метод позволяет вернуться к таблице выбора работ и ввести
+        необходимую информацию.
+        '''
+        self.font = QtGui.QFont()
+        self.font.setFamily("Bahnschrift SemiLight SemiConde")
+        self.font.setPointSize(11)
+        self.table_jobs.horizontalHeaderItem(0).setFont(self.font)
+        self.table_jobs.horizontalHeaderItem(1).setFont(self.font)
+        self.table_jobs.horizontalHeaderItem(2).setFont(self.font)
+
+        self.pushButton_order_of_work.setEnabled(True)
+        background_color = "#6cbef1"
+        border_color = "#155b87"
+        color = "#155b87"
+        background_color_hover = "#bbe1f9"
+        border_color_hover = "#155b87"
+        color_hover = "#155b87"
+        background_color_press = "#3a84b3"
+        border_color_press = "#3a84b3"
+        color_press = "#155b87"
+        border_width = "1px"
+        border_radius = "2px"
+        button_style = StyleWidgets()
+        button_style.properties_button(self.pushButton_order_of_work, background_color,
+                                       border_color, color,
+                                       background_color_hover, border_color_hover, color_hover,
+                                       background_color_press, border_color_press, color_press,
+                                       border_width, border_radius)
+        self.order_of_work.close()
+
 
 
 
@@ -355,11 +393,17 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
         self.msg_box_win_order_of_work.setFixedSize(100, 500)
         self.msg_box_win_order_of_work.adjustSize()
 
+        # Пока дочернее окно открыто запрещаем переход на главное
+        self.setWindowModality(QtCore.Qt.ApplicationModal)
+
         self.font = QtGui.QFont()
         self.font.setFamily("Bahnschrift SemiLight SemiConde")
         self.font.setPointSize(11)
 
         self.building = BuildingNetworkGraph()
+
+        # Запрет нажатия крестика
+        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowCloseButtonHint)
 
     def add_buttons(self, num_str_in_table):
         '''
@@ -367,52 +411,105 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
         размещает кнопки для выбора работ.
         '''
         self.setWindowTitle("Порядок выполнения работ")
-        self.resize(700, 500)
-        self.setMaximumSize(1000, 700)
+        #self.resize(700, 550)
+        self.left = 570
+        self.top = 70
+        self.setGeometry(self.left, self.top, 700, 550)
+
+        #self.setMaximumSize(1000, 700)
 
         self.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
 
-        '''self.left = 20
-        self.top = 70
-        self.width = 400
-        self.height = 200
-        self.setGeometry(self.left, self.top, self.width, self.height)'''
+        self.main_widget = QtWidgets.QWidget()
+        self.vertical_layout = QtWidgets.QVBoxLayout(self.main_widget)
+        self.main_widget.setLayout(self.vertical_layout)
+        self.setCentralWidget(self.main_widget)
 
-        main_widget = QtWidgets.QWidget()
-        v_layout = QtWidgets.QVBoxLayout()
-        main_widget.setLayout(v_layout)
-        self.setCentralWidget(main_widget)
+        self.horizontal_layout = QtWidgets.QHBoxLayout()
+        #self.horizontal_layout.setSpacing(30)
 
-        # TOP
-        scrollAreaTop = QtWidgets.QScrollArea()
-        scrollAreaTop.setWidgetResizable(True)
-        scrollAreaTop.setFixedHeight(70)
-        scrollAreaTop.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        scrollAreaTop.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        """scrollAreaTop.setStyleSheet('''
-                QScrollArea
-                {
-                border: 0px; 
-                }''')"""
+        spacerItem1 = QtWidgets.QSpacerItem(10, 50)
+        self.horizontal_layout.addItem(spacerItem1)
+
+        self.label_part1 = QtWidgets.QLabel(self.main_widget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift SemiLight SemiConde")
+        font.setPointSize(12)
+        self.label_part1.setFont(font)
+        self.label_part1.setObjectName("label_part1")
+        self.label_part1.setText("Укажите порядок выполнения работ.")
+        self.horizontal_layout.addWidget(self.label_part1)
+
+        spacerItem2 = QtWidgets.QSpacerItem(20, 50)
+        self.horizontal_layout.addItem(spacerItem2)
+
+        self.pushButton_building = QtWidgets.QPushButton(self.main_widget)
+        #self.pushButton_building.setGeometry(QtCore.QRect(290, 22, 75, 27))
+        self.pushButton_building.setMinimumSize(75, 27)
+        #self.pushButton_building.setAlignment(QtCore.Qt.AlignLeft)
+        self.pushButton_building.setObjectName("pushButton_building")
+        self.pushButton_building.setText("Далее")
+        self.pushButton_building.clicked.connect(
+            lambda: self.check_buttons(num_str_in_table))
+        self.pushButton_building.setFont(font)
+        background_color = "#51d77a"
+        border_color = "#2d8849"
+        color = "#2d8849"
+        background_color_hover = "#75e998"
+        border_color_hover = "#2d8849"
+        color_hover = "#2d8849"
+        background_color_press = "#17c14b"
+        border_color_press = "#2d8849"
+        color_press = "#75e998"
+        border_width = "1px"
+        border_radius = "2px"
+        button_style = StyleWidgets()
+        button_style.properties_button(self.pushButton_building, background_color,
+                                       border_color, color,
+                                       background_color_hover, border_color_hover, color_hover,
+                                       background_color_press, border_color_press, color_press,
+                                       border_width, border_radius)
+        self.horizontal_layout.addWidget(self.pushButton_building)
+
+        spacerItem3 = QtWidgets.QSpacerItem(20, 50)
+        self.horizontal_layout.addItem(spacerItem3)
+
+        self.pushButton_cancel_building = QtWidgets.QPushButton(self.main_widget)
+        self.pushButton_cancel_building.setMinimumSize(180, 27)
+        self.pushButton_cancel_building.setObjectName("pushButton_cancel_building")
+        self.pushButton_cancel_building.setText("Вернуться к таблице")
+        self.pushButton_cancel_building.setFont(font)
+        background_color = "#fa7070"
+        border_color = "#9a2222"
+        color = "#9a2222"
+        background_color_hover = "#f3a5a5"
+        border_color_hover = "#9a2222"
+        color_hover = "#9a2222"
+        background_color_press = "#d33a3a"
+        border_color_press = "#9a2222"
+        color_press = "#f3a5a5"
+        border_width = "1px"
+        border_radius = "2px"
+        button_style = StyleWidgets()
+        button_style.properties_button(self.pushButton_cancel_building,
+                                       background_color,
+                                       border_color, color,
+                                       background_color_hover, border_color_hover, color_hover,
+                                       background_color_press, border_color_press, color_press,
+                                       border_width, border_radius)
+        self.horizontal_layout.addWidget(self.pushButton_cancel_building)
+        self.horizontal_layout.addStretch(1)
+
+        self.vertical_layout.addLayout(self.horizontal_layout)
+
 
         # BOTTOM
-        scrollAreaBottom = QtWidgets.QScrollArea()
+        scrollAreaBottom = QtWidgets.QScrollArea(self.main_widget)
         scrollAreaBottom.setWidgetResizable(True)
         scrollAreaBottom.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         scrollAreaBottom.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.vertical_layout.addWidget(scrollAreaBottom)
 
-        v_layout.addWidget(scrollAreaTop)
-        v_layout.addWidget(scrollAreaBottom)
-        v_layout.setSpacing(2)
-
-        # Виджет в Top
-        self.widget_top = QtWidgets.QWidget(scrollAreaTop)
-        self.widget_top.setFixedWidth(1000)
-        self.widget_top.setFixedHeight(100)
-        self.widget_top.setStyleSheet('''
-                background: "#c6e4fb";
-                min-width: 5em;''')
-        scrollAreaTop.setWidget(self.widget_top)
 
         # Виджет для размещения кнопок
         self.widget_for_buttons = QtWidgets.QWidget(scrollAreaBottom)
@@ -420,15 +517,6 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
         self.widget_for_buttons.setFixedHeight(3200)
         # self.widget_for_task.setStyleSheet("""background: green;""")
         scrollAreaBottom.setWidget(self.widget_for_buttons)
-
-        self.label_part1 = QtWidgets.QLabel(self.widget_top)
-        self.label_part1.setGeometry(QtCore.QRect(30, 20, 325, 24))
-        font = QtGui.QFont()
-        font.setFamily("Bahnschrift SemiLight SemiConde")
-        font.setPointSize(12)
-        self.label_part1.setFont(font)
-        self.label_part1.setObjectName("label_part1")
-        self.label_part1.setText("Укажите порядок выполнения работ.")
 
         global lst_btn, lst_btn_col, lst_btn_row
         lst_btn, lst_btn_col, lst_btn_row = [], [] ,[]
@@ -461,31 +549,6 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
             for j in range(1, num_str_in_table):
                 if i < j:
                     globals()["btn" + str(i+1) + "_" + str(j+1)].clicked.connect(self.pressed_button)
-
-        self.pushButton_building = QtWidgets.QPushButton(self.widget_top)
-        self.pushButton_building.setGeometry(QtCore.QRect(290, 22, 75, 27))
-        self.pushButton_building.setObjectName("pushButton_building")
-        self.pushButton_building.setText("Далее")
-        self.pushButton_building.clicked.connect(
-            lambda: self.check_buttons(num_str_in_table))
-        self.pushButton_building.setFont(font)
-        background_color = "#51d77a"
-        border_color = "#2d8849"
-        color = "#2d8849"
-        background_color_hover = "#75e998"
-        border_color_hover = "#2d8849"
-        color_hover = "#2d8849"
-        background_color_press = "#17c14b"
-        border_color_press = "#2d8849"
-        color_press = "#75e998"
-        border_width = "1px"
-        border_radius = "2px"
-        button_style = StyleWidgets()
-        button_style.properties_button(self.pushButton_building, background_color,
-                                       border_color, color,
-                                       background_color_hover, border_color_hover, color_hover,
-                                       background_color_press, border_color_press, color_press,
-                                       border_width, border_radius)
 
     # Метод обработки нажатой кнопки с билетом
     def pressed_button(self):
@@ -540,6 +603,10 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
             self.msg_box_win_order_of_work.setText("У каждой работы должна быть предшествующая!")
             self.msg_box_win_order_of_work.setFont(self.font)
             self.msg_box_win_order_of_work.exec()
+
+
+
+
 
 
 class BuildingNetworkGraph():
