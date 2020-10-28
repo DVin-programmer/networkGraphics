@@ -11,6 +11,8 @@ import os, networkx as nx
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle, Font, Side, Border, Alignment
 from datetime import datetime as dt
+import webbrowser as wb
+import subprocess
 
 # Преобразование LaTeX в http запрос
 def httpText(strF):
@@ -294,11 +296,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     sheet["C" + str(row)] = lst_work_day[i]
                     print(lst_work_description[i], lst_work_day[i])
 
-                fileName = "files\\Проводимые_работы.xlsx"
+                fileName = "files\\excel_files\\Проводимые_работы.xlsx"
                 wb.save(fileName)
 
                 os.chdir(sys.path[0])
-                os.system('start excel.exe "%s\\%s"' % (sys.path[0], fileName,))
+                subprocess.Popen(fileName, shell=True)
+                #os.system('start excel.exe "%s\\%s"' % (sys.path[0], fileName,))
             else:
                 self.left = 230
                 self.top = 270
@@ -341,6 +344,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def open_instruction(self):
         print("открывается инструкция")
+        wb.open("files\\7_SegmentIndicator.pdf", new=2)
 
 
     def download_MSExcel(self):
@@ -357,7 +361,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.msg_box_load_MSExcel.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
         self.msg_box_load_MSExcel.setWindowTitle("Предупреждение")
 
-        file_name_exel = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 'files\\', "*.xlsx")[0]
+        file_name_exel = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file',
+                                                               'files\\excel_files',
+                                                               "*.xlsx")[0]
         if file_name_exel != "":
             wb = load_workbook(file_name_exel)
             sheet = wb.active
@@ -374,7 +380,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 if col_A == None:
                     break
                 lst_MSExcel_A.append(col_A)
-                lst_MSExcel_B.append(col_B)
+                lst_MSExcel_B.append(str(col_B))
                 lst_MSExcel_C.append(col_C)
                 i += 1
             if i <= 4:
@@ -453,12 +459,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             sheet["C" + str(row)] = ""
 
         data = data_for_file()
-        file_template = "files\\Шаблон_" + data + ".xlsx"
+        file_template = "files\\excel_files\\Шаблон_" + data + ".xlsx"
         wb.save(file_template)
 
         os.chdir(sys.path[0])
         os.system('start excel.exe "%s\\%s"' % (sys.path[0], file_template,))
-
+        #os.system('open excel.exe "%s\\%s"' % (sys.path[0], file_template,))
 
     def set_flag(self):
         '''
@@ -1113,7 +1119,7 @@ class BuildingNetworkGraph():
         '''
         # --------------------------------------------------------------
         os.environ["PATH"] += os.pathsep + "files\\Graphviz2.34\\bin\\"
-        file = open("files\\NetworkGraph.gv", "w", encoding="utf-8")
+        file = open("files\\html\\NetworkGraph.gv", "w", encoding="utf-8")
         file.write('''\
         digraph NetworkGraph
         {
@@ -1223,12 +1229,12 @@ class BuildingNetworkGraph():
                        "\"]\n")
         file.write("\n}")
         file.close()
-        os.system(r"files\\startGV.bat files\\NetworkGraph.gv")
+        os.system(r"files\\startGV.bat files\\html\\NetworkGraph.gv")
 
 
         # Построение промежуточных сетевых графиков (схема с названием работ
         # без параметров)
-        fileGV01 = open("files\\NetworkGraph01.gv", "w", encoding="utf-8")
+        fileGV01 = open("files\\html\\NetworkGraph01.gv", "w", encoding="utf-8")
         fileGV01.write('''\
         digraph NetworkGraph01
         {
@@ -1265,7 +1271,7 @@ class BuildingNetworkGraph():
 
         # Построение промежуточных сетевых графиков (схема с ранним началом и
         # ранним окончанием работ)
-        fileGV02 = open("files\\NetworkGraph02.gv", "w", encoding="utf-8")
+        fileGV02 = open("files\\html\\NetworkGraph02.gv", "w", encoding="utf-8")
         fileGV02.write('''\
         digraph NetworkGraph02
         {
@@ -1298,7 +1304,7 @@ class BuildingNetworkGraph():
                            "\"]\n")
         fileGV02.write("\n}")
         fileGV02.close()
-        os.system(r"files\\startGV.bat files\\NetworkGraph02.gv")
+        os.system(r"files\\startGV.bat files\\html\\NetworkGraph02.gv")
 
         # Вычисление резервов
         # lst_str_reserves - список всех резервов
@@ -1323,7 +1329,7 @@ class BuildingNetworkGraph():
         else:
             width_img = "95%"
 
-        fileHTML = open("files\\Info.html", "w", encoding="utf-8")
+        fileHTML = open("files\\html\\Info.html", "w", encoding="utf-8")
         fileHTML.write('''<!DOCTYPE html>
         <html lang="ru">
           <head>
@@ -1339,7 +1345,7 @@ class BuildingNetworkGraph():
         	 <p><b>Сетевой график</b> – это ориентированный граф, где в вершинах 
         	 располагаются выполняемые работы, дугами – изображается связь между ними.  
         	 Каждая вершина содержит несколько параметров, используя необходимые 
-        	 формулы можно рассчитать значения в каждой ячейке (рис. 1, формулы (1-5))</p>
+        	 формулы можно рассчитать значения в каждой ячейке (рис. 1, формулы (1-5)).</p>
 
         	 <br />
         	 <table cellspacing = "0" cellpadding = "3" width = "50%" align = "center" class = "imgTable">
@@ -1619,7 +1625,8 @@ class BuildingNetworkGraph():
         ''')
         fileHTML.close()
 
-        os.system(r"files\\Info.html")
+        wb.open("files\\html\\Info.html", new=2)
+        #os.system(r"files\\Info.html")
 
 # Нахождение max значений раннего начала
 def maxValue_HTML(i):
@@ -1650,7 +1657,7 @@ def maxValue_HTML(i):
                      str(dict_vtx_value_all[i][0]) + '''" />'''
     return htmlReturn
 
-# Нахождение значений min позднего начала
+# Нахождение min значений позднего начала
 def minValue_HTML(i):
     if len(dict_in_vtx_rev[i]) > 1:
         htmlReturn2 = '''
