@@ -8,6 +8,8 @@ from random import randint
 from PyQt5 import QtCore, QtGui, QtWidgets
 from files.general_methods import StyleWidgets
 import os, networkx as nx
+from openpyxl import Workbook
+from openpyxl.styles import NamedStyle, Font, Side, Border, Alignment
 
 # Преобразование LaTeX в http запрос
 def httpText(strF):
@@ -31,14 +33,15 @@ def colorGenerate():
     res_RGB = "#" + str(hex(r)[2:]) + str(hex(g)[2:]) + str(hex(b)[2:])
     return res_RGB
 
+global flag_win_order_of_work
+flag_win_order_of_work = False
+
 class Ui_MainWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(Ui_MainWindow, self).__init__(*args, **kwargs)
         #self.setFixedSize(750, 728)
         self.setupUi(self)
         self.setWindowTitle("Построение сетевого графика")
-        global flag_win_order_of_work
-        flag_win_order_of_work = False
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -165,6 +168,21 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
+        self.action_instruction = QtWidgets.QAction(MainWindow)
+        self.action_instruction.triggered.connect(self.open_instruction)
+        self.action_instruction.setText("Инструкция")
+        self.menubar.addAction(self.action_instruction)
+
+        self.action_save_MSExcel = QtWidgets.QAction(MainWindow)
+        self.action_save_MSExcel.triggered.connect(self.save_MSExcel)
+        self.action_save_MSExcel.setText("Сохранить в MS Excel")
+        self.menubar.addAction(self.action_save_MSExcel)
+
+        self.action_download_MSExcel = QtWidgets.QAction(MainWindow)
+        self.action_download_MSExcel.triggered.connect(self.download_MSExcel)
+        self.action_download_MSExcel.setText("Загрузить из MS Excel")
+        self.menubar.addAction(self.action_download_MSExcel)
+
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
@@ -179,12 +197,112 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_reset.setText(_translate("MainWindow", "Создать новую таблицу"))
         self.label.setText(_translate("MainWindow", "Выберите количество работ:"))
 
+    def save_MSExcel(self):
+        try:
+            print("Сохранение в MS Excel")
+            self.msg_box_MSExcel = QtWidgets.QMessageBox()
+            self.msg_box_MSExcel.setFixedSize(100, 500)
+            self.msg_box_MSExcel.adjustSize()
+            self.msg_box_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
+            self.msg_box_MSExcel.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
+            self.msg_box_MSExcel.setWindowTitle("Предупреждение")
+
+            print(self.num_str_in_table)
+            wb = Workbook()
+            sheet = wb.active
+            sheet.title = "Проводимые работы"
+
+            # Задаем стиль1
+            ns1 = NamedStyle(name="style1")
+            ns1.font = Font(bold=True, size=12)
+            border = Side(style="thin", color="000000")
+            ns1.border = Border(left=border, top=border,
+                                right=border, bottom=border)
+            ns1.alignment = Alignment(wrap_text=True, horizontal="center",
+                                      vertical="center")
+            wb.add_named_style(ns1)
+            # ---------------------
+            # Задаем стиль2
+            ns2 = NamedStyle(name="style2")
+            ns2.font = Font(size=12)
+            border = Side(style="thin", color="000000")
+            ns2.border = Border(left=border, top=border,
+                                right=border, bottom=border)
+            ns2.alignment = Alignment(horizontal="center",
+                                      vertical="center")
+            wb.add_named_style(ns2)
+            # ---------------------
+            # Задаем стиль2
+            ns3 = NamedStyle(name="style3")
+            ns3.font = Font(size=12)
+            border = Side(style="thin", color="000000")
+            ns3.border = Border(left=border, top=border,
+                                right=border, bottom=border)
+            ns3.alignment = Alignment(wrap_text=True, horizontal="left",
+                                      vertical="center")
+            wb.add_named_style(ns3)
+
+            sheet.column_dimensions["B"].width = 42
+            sheet.column_dimensions["C"].width = 15
+            sheet.row_dimensions[1].height = 30
+
+            row = 1
+            sheet["A" + str(row)].style = "style1"
+            sheet["B" + str(row)].style = "style1"
+            sheet["C" + str(row)].style = "style1"
+
+            sheet["A" + str(row)] = "Номер\nработы"
+            sheet["B" + str(row)] = "Описание работы"
+            sheet["C" + str(row)] = "Длительность\n(дней)"
+
+            for i in range(0, self.num_str_in_table):
+                row += 1
+                sheet["A" + str(row)].style = "style2"
+                sheet["B" + str(row)].style = "style3"
+                sheet["C" + str(row)].style = "style2"
+
+                sheet["A" + str(row)] = str(i + 1)
+                sheet["B" + str(row)] = lst_work_description[i]
+                sheet["C" + str(row)] = lst_work_day[i]
+                print(lst_work_description[i], lst_work_day[i])
+
+            fileName = "ПроводимыеРаботы.xlsx"
+            wb.save(fileName)
+
+            os.chdir(sys.path[0])
+            os.system('start excel.exe "%s\\%s"' % (sys.path[0], fileName,))
+        except (KeyError, NameError):
+            self.msg_box_MSExcel.setText("Таблица не проверена! Нажмите кнопку " +\
+                                         "\"Установить порядок \nвыполнения работ\".")
+            self.msg_box_MSExcel.setFont(self.font)
+            self.msg_box_MSExcel.exec()
+        except PermissionError:
+            self.msg_box_MSExcel.setText("Закройте MS Excel!")
+            self.msg_box_MSExcel.setFont(self.font)
+            self.msg_box_MSExcel.exec()
+        except IndexError:
+            self.msg_box_MSExcel.setText("Заполните таблицу и нажмите на кнопку " +\
+                                         "\"Установить порядок \nвыполнения работ\".")
+            self.msg_box_MSExcel.setFont(self.font)
+            self.msg_box_MSExcel.exec()
+        except AttributeError:
+            self.msg_box_MSExcel.setText("Создайте таблицу!")
+            self.msg_box_MSExcel.setFont(self.font)
+            self.msg_box_MSExcel.exec()
+
+
+
+    def open_instruction(self):
+        print("открывается инструкция")
+
+    def download_MSExcel(self):
+        print("Загрука таблицы из MS Excel")
+
     def create_table(self):
         '''
         Создание таблицы с необходимым количеством строк,
         указанных в spinBox
         '''
-        print("Create_table")
         self.font = QtGui.QFont()
         self.font.setFamily("Bahnschrift SemiLight SemiConde")
         self.font.setPointSize(11)
@@ -336,18 +454,34 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.top = 70
         self.setGeometry(self.left, self.top, 572, 550)
 
+        self.font = QtGui.QFont()
+        self.font.setFamily("Bahnschrift SemiLight SemiConde")
+        self.font.setPointSize(11)
+        self.table_jobs.horizontalHeaderItem(0).setFont(self.font)
+        self.table_jobs.horizontalHeaderItem(1).setFont(self.font)
+        self.table_jobs.horizontalHeaderItem(2).setFont(self.font)
+
         self.order_of_work.show()
         self.order_of_work.add_buttons(self.num_str_in_table)
 
-        self.pushButton_order_of_work.setEnabled(False)
+        """self.pushButton_reset.setEnabled(False)
+        self.pushButton_reset.setStyleSheet('''
+                                            background-color: "#cccccc";
+                                            border-style: solid;
+                                            border-color: "#909090";
+                                            border-width: 1px;
+                                            border-radius: 2px;
+                                            color: "#909090";''')"""
+
+        """self.pushButton_order_of_work.setEnabled(False)
         self.pushButton_order_of_work.setStyleSheet('''
                                     background-color: "#cccccc";
                                     border-style: solid;
                                     border-color: "#909090";
                                     border-width: 1px;
                                     border-radius: 2px;
-                                    color: "#909090";''')
-        self.order_of_work.pushButton_cancel_building.clicked.connect(self.cancel_building)
+                                    color: "#909090";''')"""
+        #self.order_of_work.pushButton_cancel_building.clicked.connect(self.cancel_building)
 
     def cancel_building(self):
         '''
@@ -361,6 +495,25 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.table_jobs.horizontalHeaderItem(1).setFont(self.font)
         self.table_jobs.horizontalHeaderItem(2).setFont(self.font)
 
+        button_style = StyleWidgets()
+        self.pushButton_reset.setEnabled(True)
+        background_color = "#fa7070"
+        border_color = "#9a2222"
+        color = "#9a2222"
+        background_color_hover = "#f3a5a5"
+        border_color_hover = "#9a2222"
+        color_hover = "#9a2222"
+        background_color_press = "#d33a3a"
+        border_color_press = "#9a2222"
+        color_press = "#f3a5a5"
+        border_width = "1px"
+        border_radius = "2px"
+        button_style.properties_button(self.pushButton_reset, background_color,
+                                       border_color, color,
+                                       background_color_hover, border_color_hover, color_hover,
+                                       background_color_press, border_color_press, color_press,
+                                       border_width, border_radius)
+
         self.pushButton_order_of_work.setEnabled(True)
         background_color = "#6cbef1"
         border_color = "#155b87"
@@ -373,7 +526,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         color_press = "#155b87"
         border_width = "1px"
         border_radius = "2px"
-        button_style = StyleWidgets()
         button_style.properties_button(self.pushButton_order_of_work, background_color,
                                        border_color, color,
                                        background_color_hover, border_color_hover, color_hover,
@@ -385,16 +537,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
 # Класс для окна с порядком выполнения работ
-class Win_OrderOfWork(QtWidgets.QMainWindow):
-    def __init__(self, window):
-        QtWidgets.QMainWindow.__init__(self)
+class Win_OrderOfWork(Ui_MainWindow):
+    def __init__(self, window = None):
+        QtWidgets.QWidget.__init__(self)
+        #super(Win_OrderOfWork, self).__init__(window)
         self.window = window
         self.msg_box_win_order_of_work = QtWidgets.QMessageBox()
         self.msg_box_win_order_of_work.setFixedSize(100, 500)
         self.msg_box_win_order_of_work.adjustSize()
 
         # Пока дочернее окно открыто запрещаем переход на главное
-        self.setWindowModality(QtCore.Qt.ApplicationModal)
+        # self.setWindowModality(QtCore.Qt.ApplicationModal)
 
         self.font = QtGui.QFont()
         self.font.setFamily("Bahnschrift SemiLight SemiConde")
@@ -403,7 +556,16 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
         self.building = BuildingNetworkGraph()
 
         # Запрет нажатия крестика
-        self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowCloseButtonHint)
+        # self.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
+
+
+
+    '''def closeEvent(self, event):
+        print("Закрыто")
+        flag_win_order_of_work = True
+        print(flag_win_order_of_work)
+        #self.pushButton_reset.setEnabled(True)
+        #Ui_MainWindow.cancel_building()'''
 
     def add_buttons(self, num_str_in_table):
         '''
@@ -412,7 +574,7 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
         '''
         self.setWindowTitle("Порядок выполнения работ")
         #self.resize(700, 550)
-        self.left = 570
+        self.left = 610
         self.top = 70
         self.setGeometry(self.left, self.top, 700, 550)
 
@@ -444,9 +606,7 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
         self.horizontal_layout.addItem(spacerItem2)
 
         self.pushButton_building = QtWidgets.QPushButton(self.main_widget)
-        #self.pushButton_building.setGeometry(QtCore.QRect(290, 22, 75, 27))
         self.pushButton_building.setMinimumSize(75, 27)
-        #self.pushButton_building.setAlignment(QtCore.Qt.AlignLeft)
         self.pushButton_building.setObjectName("pushButton_building")
         self.pushButton_building.setText("Далее")
         self.pushButton_building.clicked.connect(
@@ -474,8 +634,8 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
         spacerItem3 = QtWidgets.QSpacerItem(20, 50)
         self.horizontal_layout.addItem(spacerItem3)
 
-        self.pushButton_cancel_building = QtWidgets.QPushButton(self.main_widget)
-        self.pushButton_cancel_building.setMinimumSize(180, 27)
+        '''self.pushButton_cancel_building = QtWidgets.QPushButton(self.main_widget)
+        self.pushButton_cancel_building.setMinimumSize(160, 27)
         self.pushButton_cancel_building.setObjectName("pushButton_cancel_building")
         self.pushButton_cancel_building.setText("Вернуться к таблице")
         self.pushButton_cancel_building.setFont(font)
@@ -497,7 +657,22 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
                                        background_color_hover, border_color_hover, color_hover,
                                        background_color_press, border_color_press, color_press,
                                        border_width, border_radius)
-        self.horizontal_layout.addWidget(self.pushButton_cancel_building)
+        self.horizontal_layout.addWidget(self.pushButton_cancel_building)'''
+
+        self.label_part2 = QtWidgets.QLabel(self.main_widget)
+        font = QtGui.QFont()
+        font.setFamily("Bahnschrift SemiLight SemiConde")
+        font.setPointSize(13)
+        self.label_part2.setFont(font)
+        self.label_part2.setObjectName("label_part1")
+        self.label_part2.setText("Этапы построения сетевого графика \nоткроются в браузере.")
+        self.label_part2.setVisible(False)
+        self.label_part2.setStyleSheet("""
+        color: '#b51a1a';
+        background: '#f6a8a8';
+        padding: 0 10px""")
+        self.horizontal_layout.addWidget(self.label_part2)
+
         self.horizontal_layout.addStretch(1)
 
         self.vertical_layout.addLayout(self.horizontal_layout)
@@ -550,7 +725,7 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
                 if i < j:
                     globals()["btn" + str(i+1) + "_" + str(j+1)].clicked.connect(self.pressed_button)
 
-    # Метод обработки нажатой кнопки с билетом
+    # Метод обработки нажатой кнопки
     def pressed_button(self):
         global numBtn
         sender = self.sender() # устанавливаем какой виджет является отправителем сигнала
@@ -595,6 +770,7 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
         '''
         if len(set(lst_btn_col)) == num_str_in_table - 1 and \
                 len(set(lst_btn_row)) == num_str_in_table - 1:
+            self.label_part2.setVisible(True)
             self.building.calculation_of_indicators(num_str_in_table)
 
         else:
@@ -603,11 +779,6 @@ class Win_OrderOfWork(QtWidgets.QMainWindow):
             self.msg_box_win_order_of_work.setText("У каждой работы должна быть предшествующая!")
             self.msg_box_win_order_of_work.setFont(self.font)
             self.msg_box_win_order_of_work.exec()
-
-
-
-
-
 
 class BuildingNetworkGraph():
     def calculation_of_indicators(self, num_str_in_table):
@@ -812,8 +983,8 @@ class BuildingNetworkGraph():
         for root in roots:
             paths = nx.all_simple_paths(G, root, leaves)
             reserves.extend(paths)'''
-        reserves = list(nx.all_simple_paths(G, source=1, target=num_str_in_table))
-        print("reserves:", reserves,"\nКоличество путей:", len(reserves))
+        lst_reserves_int = list(nx.all_simple_paths(G, source=1, target=num_str_in_table))
+        print("reserves:", lst_reserves_int,"\nКоличество путей:", len(lst_reserves_int))
 
         ''''# Поиск индексов для создания нового списка.
         # В найденных списках пути указаны не по возрастанию вершин, поэтому
@@ -920,17 +1091,19 @@ class BuildingNetworkGraph():
         os.system(r"files\\startGV.bat files\\NetworkGraph02.gv")
 
         # Вычисление резервов
-        str_value_lst1 = []
-        int_value_lst1 = []
-        for i in range(0, len(reserves)):
-            str_value_lst2 = []
-            int_value_lst2 = []
-            for l in range(0, len(reserves[i])):
-                k = reserves[i][l]
-                str_value_lst2.append(str(dict_vtx_value_all[k][1]))
-                int_value_lst2.append(dict_vtx_value_all[k][1])
-            str_value_lst1.append(str_value_lst2)
-            int_value_lst1.append(int_value_lst2)
+        # lst_str_reserves - список всех резервов
+        # lst_str_reserve - список, который входит в список всех резервов (1 резерв)
+        lst_str_reserves = []
+        lst_int_reserves = []
+        for i in range(0, len(lst_reserves_int)):
+            lst_str_reserve = []
+            lst_int_reserve = []
+            for l in range(0, len(lst_reserves_int[i])):
+                k = lst_reserves_int[i][l]
+                lst_str_reserve.append(str(dict_vtx_value_all[k][1]))
+                lst_int_reserve.append(dict_vtx_value_all[k][1])
+            lst_str_reserves.append(lst_str_reserve)
+            lst_int_reserves.append(lst_int_reserve)
 
         # Запись в файл html
         if num_str_in_table < 7:
@@ -1035,25 +1208,26 @@ class BuildingNetworkGraph():
         	 </p>
 
              <p> Описание и длительность необходимых работ представлены в таблице 1.</p>
-        	 <table cellspacing = "0" cellpadding = "3" width = "50%" align = "center">
-        	   <caption class = "smallText"> Таблица 1. Описание выполняемых работ</caption>
-        	   <tbody>
-        	     <tr align = "center" style = "background-color: #3aa9fe; ">
-        	       <th>Номер <br /> работы </th>
-        		   <th>Описание работы </th>
-        		   <th>Длительность <br />(в днях) </th>
-        	     </tr>
+             <p class = "smallText"> Таблица 1. Описание выполняемых работ </p>
+             <div class="TableScroll">
+        	    <table cellspacing = "0" cellpadding = "3" width = "50%" align = "center">
+        	      <tbody>
+        	        <tr align = "center" style = "background-color: #3aa9fe; ">
+        	          <th>Номер <br /> работы </th>
+        		      <th>Описание работы </th>
+        		      <th>Длительность <br />(в днях) </th>
+        	        </tr>
         ''')
         # Запись таблицы в файл html
         for i in range(0, num_str_in_table):
-            fileHTML.write('''	     <tr class = "selectionColor">
-        	       <td align = "center">''' + str(i + 1) + '''.</td>
-        		   <td>''' + lst_work_description[i] + '''</td>
-        		   <td align = "center">''' + str(lst_work_day[i]) + '''</td>
-        	     </tr>''')
-        fileHTML.write('''		</tbody>
-        	  </table>
-        	  <br />
+            fileHTML.write('''	        <tr class = "selectionColor">
+        	          <td align = "center">''' + str(i + 1) + '''</td>
+        		      <td>''' + lst_work_description[i] + '''</td>
+        		      <td align = "center">''' + str(lst_work_day[i]) + '''</td>
+        	        </tr>''')
+        fileHTML.write('''		   </tbody>
+        	     </table>
+        	  </div>
         	  <p> Последовательность выполнения работ, которая была указана в окне
         	  ввода программы представлена на схеме (рис. 2). </p>
         	  <a href = "NetworkGraph01.svg"><img src = "NetworkGraph01.jpg"
@@ -1176,44 +1350,59 @@ class BuildingNetworkGraph():
         	  <div class = "WinFormulas">''')
         # -------------------------------------
         # Критический путь, резервы времени
-        s = str(dict_vtx_value_all[num_str_in_table][6])
+        # LF_last_vtx - значение ПО (LF) из последней вершины
+        LF_last_vtx = str(dict_vtx_value_all[num_str_in_table][6])
         plus = " + "
         arrow = "➜"
-        # Преобразование путей в str
-        ReservesNewStr1 = []
-        for i in range(0, len(reserves)):
-            ReservesNewStr2 = []
-            for l in range(0, len(reserves[i])):
-                ReservesNewStr2.append(str(reserves[i][l]))
-            ReservesNewStr1.append(ReservesNewStr2)
 
-        for i in range(0, len(str_value_lst1)):
-            sPlus = plus.join(str_value_lst1[i])
-            sumEl = sum(int_value_lst1[i])
-            ReservesStr = arrow.join(ReservesNewStr1[i])
+        # Преобразование путей в str
+        # lst_reserves_str - все пути представлены в str в списках
+        # lst_reserve_str - один из путей, входит в состав lst_reserves_str
+        # --------------------------
+        # Пример:
+        # Преобразование reserves: [[1, 2, 3, 4, 5], [1, 2, 4, 5]]
+        # в lst_reserves_str: [['1', '2', '3', '4', '5'], ['1', '2', '4', '5']]
+        # ---------------------------------------------------------------------
+        lst_reserves_str = []
+        for i in range(0, len(lst_reserves_int)):
+            lst_reserve_str = []
+            for l in range(0, len(lst_reserves_int[i])):
+                lst_reserve_str.append(str(lst_reserves_int[i][l]))
+            lst_reserves_str.append(lst_reserve_str)
+
+        # sum_str_lst_reserves_str - выполняет сложение строк из списка lst_str_reserves
+        # для отображения на экране
+        # sum_value_lst_reserves_int - сложение значений путей в спсике lst_reserves_int
+        for i in range(0, len(lst_str_reserves)):
+            sum_str_lst_reserves_str = plus.join(lst_str_reserves[i])
+            sum_value_lst_reserves_int = sum(lst_int_reserves[i])
+            reserves_with_arrows = arrow.join(lst_reserves_str[i])
             # ---------------------------------------
             str1 = '''
         	    <div class = "divIndent"> Путь ''' + \
                    '''<div class = "colorPath">''' + \
-                   str(ReservesStr) + "</div> : \n"
-            strSpace = ""
+                   str(reserves_with_arrows) + "</div> : <br> <nobr> &nbsp &nbsp &nbsp &nbsp &nbsp"
+            str_space = ""
             for space in range(0, len(str1)):
-                strSpace += " "
+                str_space += " "
             # ---------------------------------------------------
-            str2 = strSpace + s + " - " + "(" + sPlus + ") = " + \
-                   s + " - " + str(sumEl) + " = " + \
-                   str(int(s) - sumEl) + '''</div>
+            str2 = str_space + LF_last_vtx + " - " + "(" + sum_str_lst_reserves_str + ") = " + \
+                   LF_last_vtx + " - " + str(sum_value_lst_reserves_int) + " = " + \
+                   str(int(LF_last_vtx) - sum_value_lst_reserves_int) + '''</nobr></div>
         		<hr> '''
             fileHTML.write(str1 + str2)
 
-            if int(s) - sumEl == 0:
-                criticalPath = i
+            if int(LF_last_vtx) - sum_value_lst_reserves_int == 0:
+                critical_path = i
+                """fileHTML.write('''<div class = "divIndent">Критический путь: <div class = "colorCrPath">''' + \
+                               str(arrow.join(lst_reserves_str[critical_path])) + "</div></div>")
+                fileHTML.write("<hr>")"""
 
-        fileHTML.write('''<div class = "divIndent">Критический путь: <div class = "colorCrPath">''' + \
-                       str(arrow.join(ReservesNewStr1[criticalPath])))
-
-        fileHTML.write('''</div></div>
-        	  </div>
+        fileHTML.write('''
+                	  </div>''')
+        fileHTML.write('''<div class = "divIndent_CrPath">Критический путь: <div class = "colorCrPath">''' + \
+                       str(arrow.join(lst_reserves_str[critical_path])) + "</div></div>")
+        fileHTML.write('''
            </div>
          </body>
         </html>
@@ -1279,9 +1468,20 @@ def minValue_HTML(i):
                       str(dict_vtx_value_all[i][6]) + '''" />'''
     return htmlReturn2
 
+#=====================================================================
+'''def log_uncaught_exceptions(ex_cls, ex, tb):
+    text = '{}: {}:\n'.format(ex_cls.__name__, ex)
+    import traceback
+    text += ''.join(traceback.format_tb(tb))
 
+    print(text)
+    QtWidgets.QMessageBox.critical(None, 'Error', text)
+    quit()
 
-
+import sys
+sys.excepthook = log_uncaught_exceptions
+app = QtWidgets.QApplication(sys.argv)'''
+#=====================================================================
 
 if __name__ == '__main__':
     import sys
@@ -1289,3 +1489,17 @@ if __name__ == '__main__':
     w = Ui_MainWindow()
     w.show()
     sys.exit(app.exec_())
+
+
+def my_excepthook(type, value, tback):
+    import sys
+    QtWidgets.QMessageBox.critical(
+        window, "CRITICAL ERROR", str(value),
+        QtWidgets.QMessageBox.Cancel
+    )
+
+    sys.__excepthook__(type, value, tback)
+
+sys.excepthook = my_excepthook
+
+

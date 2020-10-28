@@ -173,6 +173,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.create_win_info_exam_table = win_InfoExamTable(self)
         self.actionTickets.triggered.connect(self.open_table_exam)
         self.menubar.addAction(self.actionTickets)
+        #self.actionTickets.setText(_translate("MainWindow", "Выданные билеты"))
 
         """
         # Несколько пунктов в меню

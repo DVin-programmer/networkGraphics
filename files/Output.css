@@ -63,16 +63,25 @@ h1
 .WinFormulas
 {
 	overflow-y: scroll;
-	height: 240px;
+        overflow-x: scroll;
+	height: 255px;
 	width: 70%;
-	border: 1px solid #C1C1C1;
+	border: 2px solid #CCCCCC;
 	margin: 0 0 0 40px;
+}
+.TableScroll
+{
+	overflow-y: scroll;
+	height: 300px;
+	width: 100%;
+	border: 2px solid #CCCCCC;
+	margin: 0 0 0 10px;
 }
 
 hr
 {
-	background-color: #c0dbf3;
-	height: 1px;
+	background-color: #60c8f8;
+	height: 2px;
 	border: none;
 	margin: 10px 0 10px 0;
 }
@@ -80,7 +89,7 @@ hr
 .colorPath
 {
 	display: inline;
-	background: #afd6e7;	
+	background: #60c8f8;	
 }
 .colorCrPath
 {
@@ -90,4 +99,9 @@ hr
 .divIndent
 {
 	padding: 10px 0 10px 0;
+}
+
+.divIndent_CrPath
+{
+	padding: 20px 0 100px 40px;
 }
