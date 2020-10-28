@@ -8,8 +8,9 @@ from random import randint
 from PyQt5 import QtCore, QtGui, QtWidgets
 from files.general_methods import StyleWidgets
 import os, networkx as nx
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle, Font, Side, Border, Alignment
+from datetime import datetime as dt
 
 # Преобразование LaTeX в http запрос
 def httpText(strF):
@@ -33,6 +34,10 @@ def colorGenerate():
     res_RGB = "#" + str(hex(r)[2:]) + str(hex(g)[2:]) + str(hex(b)[2:])
     return res_RGB
 
+# Дата для Excel файла
+def data_for_file():
+    return dt.now().strftime("%Y-%m-%d_%H.%M.%S")
+
 global flag_win_order_of_work
 flag_win_order_of_work = False
 
@@ -43,9 +48,19 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.setupUi(self)
         self.setWindowTitle("Построение сетевого графика")
 
+        # Флаг отвечает за сохранение таблицы в MS Excel
+        self.flag_open_MSExcel = True
+        # Флаг отвечает за загрузку данных из Excel
+        self.flag_load_MSExcel = False
+
+
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(572, 550)
+        self.left = 30
+        self.top = 70
+        self.setGeometry(self.left, self.top, 572, 550)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.setMaximumSize(572, 550)
@@ -71,7 +86,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_next = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_next.setGeometry(QtCore.QRect(270, 36, 75, 27))
         self.pushButton_next.setObjectName("pushButton_next")
-        self.pushButton_next.clicked.connect(self.create_table)
+        self.pushButton_next.clicked.connect(self.set_flag)
         self.pushButton_next.setFont(self.font)
         background_color = "#51d77a"
         border_color = "#2d8849"
@@ -136,7 +151,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.pushButton_order_of_work = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_order_of_work.setText("Установить порядок \n выполнения работ")
-        self.pushButton_order_of_work.setGeometry(QtCore.QRect(380, 450, 150, 54))
+        self.pushButton_order_of_work.setGeometry(QtCore.QRect(380, 420, 150, 54))
         self.pushButton_order_of_work.setObjectName("pushButton_order_of_work")
         self.pushButton_order_of_work.clicked.connect(self.check_table)
         self.pushButton_order_of_work.setFont(self.font)
@@ -159,9 +174,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                        border_width, border_radius)
         self.pushButton_order_of_work.setVisible(False)
 
+        self.font = QtGui.QFont()
+        self.font.setFamily("Bahnschrift SemiLight SemiConde")
+        self.font.setPointSize(11)
+        self.label_author = QtWidgets.QLabel(self.centralwidget)
+        self.label_author.setGeometry(QtCore.QRect(20, 490, 181, 20))
+        self.label_author.setObjectName("label_author")
+        self.label_author.setText("© Винокурова Д.В., 2020")
+        self.label_author.setFont(self.font)
 
         self.order_of_work = Win_OrderOfWork(self)
-
 
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 572, 21))
@@ -172,6 +194,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.action_instruction.triggered.connect(self.open_instruction)
         self.action_instruction.setText("Инструкция")
         self.menubar.addAction(self.action_instruction)
+
+        self.action_template = QtWidgets.QAction(MainWindow)
+        self.action_template.triggered.connect(self.open_template)
+        self.action_template.setText("Заполнить Excel шаблон")
+        self.menubar.addAction(self.action_template)
 
         self.action_save_MSExcel = QtWidgets.QAction(MainWindow)
         self.action_save_MSExcel.triggered.connect(self.save_MSExcel)
@@ -198,105 +225,249 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.label.setText(_translate("MainWindow", "Выберите количество работ:"))
 
     def save_MSExcel(self):
+        '''
+        Метод позволяет сохранять таблицу в MS Excel.
+        '''
         try:
-            print("Сохранение в MS Excel")
-            self.msg_box_MSExcel = QtWidgets.QMessageBox()
-            self.msg_box_MSExcel.setFixedSize(100, 500)
-            self.msg_box_MSExcel.adjustSize()
-            self.msg_box_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
-            self.msg_box_MSExcel.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
-            self.msg_box_MSExcel.setWindowTitle("Предупреждение")
+            self.msg_box_save_MSExcel = QtWidgets.QMessageBox()
+            self.msg_box_save_MSExcel.setFixedSize(100, 500)
+            self.msg_box_save_MSExcel.adjustSize()
+            self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
+            self.msg_box_save_MSExcel.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
+            self.msg_box_save_MSExcel.setWindowTitle("Предупреждение")
+            if self.flag_open_MSExcel == True:
+                wb = Workbook()
+                sheet = wb.active
+                sheet.title = "Проводимые работы"
 
-            print(self.num_str_in_table)
-            wb = Workbook()
-            sheet = wb.active
-            sheet.title = "Проводимые работы"
+                # Задаем стиль1
+                ns1 = NamedStyle(name="style1")
+                ns1.font = Font(bold=True, size=12)
+                border = Side(style="thin", color="000000")
+                ns1.border = Border(left=border, top=border,
+                                    right=border, bottom=border)
+                ns1.alignment = Alignment(wrap_text=True, horizontal="center",
+                                          vertical="center")
+                wb.add_named_style(ns1)
+                # ---------------------
+                # Задаем стиль2
+                ns2 = NamedStyle(name="style2")
+                ns2.font = Font(size=12)
+                border = Side(style="thin", color="000000")
+                ns2.border = Border(left=border, top=border,
+                                    right=border, bottom=border)
+                ns2.alignment = Alignment(horizontal="center",
+                                          vertical="center")
+                wb.add_named_style(ns2)
+                # ---------------------
+                # Задаем стиль2
+                ns3 = NamedStyle(name="style3")
+                ns3.font = Font(size=12)
+                border = Side(style="thin", color="000000")
+                ns3.border = Border(left=border, top=border,
+                                    right=border, bottom=border)
+                ns3.alignment = Alignment(wrap_text=True, horizontal="left",
+                                          vertical="center")
+                wb.add_named_style(ns3)
 
-            # Задаем стиль1
-            ns1 = NamedStyle(name="style1")
-            ns1.font = Font(bold=True, size=12)
-            border = Side(style="thin", color="000000")
-            ns1.border = Border(left=border, top=border,
-                                right=border, bottom=border)
-            ns1.alignment = Alignment(wrap_text=True, horizontal="center",
-                                      vertical="center")
-            wb.add_named_style(ns1)
-            # ---------------------
-            # Задаем стиль2
-            ns2 = NamedStyle(name="style2")
-            ns2.font = Font(size=12)
-            border = Side(style="thin", color="000000")
-            ns2.border = Border(left=border, top=border,
-                                right=border, bottom=border)
-            ns2.alignment = Alignment(horizontal="center",
-                                      vertical="center")
-            wb.add_named_style(ns2)
-            # ---------------------
-            # Задаем стиль2
-            ns3 = NamedStyle(name="style3")
-            ns3.font = Font(size=12)
-            border = Side(style="thin", color="000000")
-            ns3.border = Border(left=border, top=border,
-                                right=border, bottom=border)
-            ns3.alignment = Alignment(wrap_text=True, horizontal="left",
-                                      vertical="center")
-            wb.add_named_style(ns3)
+                sheet.column_dimensions["B"].width = 42
+                sheet.column_dimensions["C"].width = 15
+                sheet.row_dimensions[1].height = 30
 
-            sheet.column_dimensions["B"].width = 42
-            sheet.column_dimensions["C"].width = 15
-            sheet.row_dimensions[1].height = 30
+                row = 1
+                sheet["A" + str(row)].style = "style1"
+                sheet["B" + str(row)].style = "style1"
+                sheet["C" + str(row)].style = "style1"
 
-            row = 1
-            sheet["A" + str(row)].style = "style1"
-            sheet["B" + str(row)].style = "style1"
-            sheet["C" + str(row)].style = "style1"
+                sheet["A" + str(row)] = "Номер\nработы"
+                sheet["B" + str(row)] = "Описание работы"
+                sheet["C" + str(row)] = "Длительность\n(дней)"
 
-            sheet["A" + str(row)] = "Номер\nработы"
-            sheet["B" + str(row)] = "Описание работы"
-            sheet["C" + str(row)] = "Длительность\n(дней)"
+                for i in range(0, self.num_str_in_table):
+                    row += 1
+                    sheet["A" + str(row)].style = "style2"
+                    sheet["B" + str(row)].style = "style3"
+                    sheet["C" + str(row)].style = "style2"
 
-            for i in range(0, self.num_str_in_table):
-                row += 1
-                sheet["A" + str(row)].style = "style2"
-                sheet["B" + str(row)].style = "style3"
-                sheet["C" + str(row)].style = "style2"
+                    sheet["A" + str(row)] = str(i + 1)
+                    sheet["B" + str(row)] = lst_work_description[i]
+                    sheet["C" + str(row)] = lst_work_day[i]
+                    print(lst_work_description[i], lst_work_day[i])
 
-                sheet["A" + str(row)] = str(i + 1)
-                sheet["B" + str(row)] = lst_work_description[i]
-                sheet["C" + str(row)] = lst_work_day[i]
-                print(lst_work_description[i], lst_work_day[i])
+                fileName = "files\\Проводимые_работы.xlsx"
+                wb.save(fileName)
 
-            fileName = "ПроводимыеРаботы.xlsx"
-            wb.save(fileName)
+                os.chdir(sys.path[0])
+                os.system('start excel.exe "%s\\%s"' % (sys.path[0], fileName,))
+            else:
+                self.left = 230
+                self.top = 270
+                self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
+                self.msg_box_save_MSExcel.setText("Создайте таблицу!")
+                self.msg_box_save_MSExcel.setFont(self.font)
+                self.msg_box_save_MSExcel.exec()
 
-            os.chdir(sys.path[0])
-            os.system('start excel.exe "%s\\%s"' % (sys.path[0], fileName,))
         except (KeyError, NameError):
-            self.msg_box_MSExcel.setText("Таблица не проверена! Нажмите кнопку " +\
+            self.left = 80
+            self.top = 270
+            self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
+            self.msg_box_save_MSExcel.setText("Таблица не проверена! Нажмите кнопку " +\
                                          "\"Установить порядок \nвыполнения работ\".")
-            self.msg_box_MSExcel.setFont(self.font)
-            self.msg_box_MSExcel.exec()
+            self.msg_box_save_MSExcel.setFont(self.font)
+            self.msg_box_save_MSExcel.exec()
         except PermissionError:
-            self.msg_box_MSExcel.setText("Закройте MS Excel!")
-            self.msg_box_MSExcel.setFont(self.font)
-            self.msg_box_MSExcel.exec()
+            self.left = 230
+            self.top = 270
+            self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
+            self.msg_box_save_MSExcel.setText("Закройте MS Excel!")
+            self.msg_box_save_MSExcel.setFont(self.font)
+            self.msg_box_save_MSExcel.exec()
         except IndexError:
-            self.msg_box_MSExcel.setText("Заполните таблицу и нажмите на кнопку " +\
+            self.left = 80
+            self.top = 270
+            self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
+            self.msg_box_save_MSExcel.setText("Заполните таблицу и нажмите на кнопку " +\
                                          "\"Установить порядок \nвыполнения работ\".")
-            self.msg_box_MSExcel.setFont(self.font)
-            self.msg_box_MSExcel.exec()
+            self.msg_box_save_MSExcel.setFont(self.font)
+            self.msg_box_save_MSExcel.exec()
         except AttributeError:
-            self.msg_box_MSExcel.setText("Создайте таблицу!")
-            self.msg_box_MSExcel.setFont(self.font)
-            self.msg_box_MSExcel.exec()
-
+            self.left = 230
+            self.top = 270
+            self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
+            self.msg_box_save_MSExcel.setText("Создайте таблицу!")
+            self.msg_box_save_MSExcel.setFont(self.font)
+            self.msg_box_save_MSExcel.exec()
 
 
     def open_instruction(self):
         print("открывается инструкция")
 
+
     def download_MSExcel(self):
-        print("Загрука таблицы из MS Excel")
+        '''
+        Метод позволяет загружать таблицу из MS Excel.
+        '''
+
+        self.clear_info()
+
+        self.msg_box_load_MSExcel = QtWidgets.QMessageBox()
+        self.msg_box_load_MSExcel.setFixedSize(100, 500)
+        self.msg_box_load_MSExcel.adjustSize()
+        self.msg_box_load_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
+        self.msg_box_load_MSExcel.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
+        self.msg_box_load_MSExcel.setWindowTitle("Предупреждение")
+
+        file_name_exel = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', 'files\\', "*.xlsx")[0]
+        if file_name_exel != "":
+            wb = load_workbook(file_name_exel)
+            sheet = wb.active
+
+            global lst_MSExcel_A, lst_MSExcel_B, lst_MSExcel_C
+            lst_MSExcel_A = []
+            lst_MSExcel_B = []
+            lst_MSExcel_C = []
+            i = 1
+            while True:
+                col_A = sheet['A' + str(i)].value
+                col_B = sheet['B' + str(i)].value
+                col_C = sheet['C' + str(i)].value
+                if col_A == None:
+                    break
+                lst_MSExcel_A.append(col_A)
+                lst_MSExcel_B.append(col_B)
+                lst_MSExcel_C.append(col_C)
+                i += 1
+            if i <= 4:
+                self.left = 70
+                self.top = 270
+                self.msg_box_load_MSExcel.setGeometry(self.left, self.top, 572, 550)
+                self.msg_box_load_MSExcel.setText("Неверно заполнен файл " + file_name_exel + "!")
+                self.msg_box_load_MSExcel.setFont(self.font)
+                self.msg_box_load_MSExcel.exec()
+            else:
+                self.num_str_in_table = i - 2
+                self.spinBox_num_jobs.setValue(i - 2)
+                self.flag_load_MSExcel = True
+                self.create_table()
+
+            '''print(lst_MSExcel_A)
+            print(lst_MSExcel_B)
+            print(lst_MSExcel_C)'''
+
+    def open_template(self):
+        wb = Workbook()
+        sheet = wb.active
+        sheet.title = "Проводимые работы"
+
+        # Задаем стиль1
+        ns1 = NamedStyle(name="style1")
+        ns1.font = Font(bold=True, size=12)
+        border = Side(style="thin", color="000000")
+        ns1.border = Border(left=border, top=border,
+                            right=border, bottom=border)
+        ns1.alignment = Alignment(wrap_text=True, horizontal="center",
+                                  vertical="center")
+        wb.add_named_style(ns1)
+        # ---------------------
+        # Задаем стиль2
+        ns2 = NamedStyle(name="style2")
+        ns2.font = Font(size=12)
+        border = Side(style="thin", color="000000")
+        ns2.border = Border(left=border, top=border,
+                            right=border, bottom=border)
+        ns2.alignment = Alignment(horizontal="center",
+                                  vertical="center")
+        wb.add_named_style(ns2)
+        # ---------------------
+        # Задаем стиль2
+        ns3 = NamedStyle(name="style3")
+        ns3.font = Font(size=12)
+        border = Side(style="thin", color="000000")
+        ns3.border = Border(left=border, top=border,
+                            right=border, bottom=border)
+        ns3.alignment = Alignment(wrap_text=True, horizontal="left",
+                                  vertical="center")
+        wb.add_named_style(ns3)
+
+        sheet.column_dimensions["B"].width = 42
+        sheet.column_dimensions["C"].width = 15
+        sheet.row_dimensions[1].height = 30
+
+        row = 1
+        sheet["A" + str(row)].style = "style1"
+        sheet["B" + str(row)].style = "style1"
+        sheet["C" + str(row)].style = "style1"
+
+        sheet["A" + str(row)] = "Номер\nработы"
+        sheet["B" + str(row)] = "Описание работы"
+        sheet["C" + str(row)] = "Длительность\n(дней)"
+
+        for i in range(0, 5):
+            row += 1
+            sheet["A" + str(row)].style = "style2"
+            sheet["B" + str(row)].style = "style3"
+            sheet["C" + str(row)].style = "style2"
+
+            sheet["A" + str(row)] = str(i + 1)
+            sheet["B" + str(row)] = ""
+            sheet["C" + str(row)] = ""
+
+        data = data_for_file()
+        file_template = "files\\Шаблон_" + data + ".xlsx"
+        wb.save(file_template)
+
+        os.chdir(sys.path[0])
+        os.system('start excel.exe "%s\\%s"' % (sys.path[0], file_template,))
+
+
+    def set_flag(self):
+        '''
+        Метод необходим, чтобы установить флаг, который говорит о том, что
+        данные вводятся вручную
+        '''
+        self.flag_load_MSExcel = False
+        self.create_table()
+
 
     def create_table(self):
         '''
@@ -344,21 +515,39 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             for i in range(0, 3):
                 self.table_jobs.horizontalHeaderItem(i).setTextAlignment(QtCore.Qt.AlignHCenter)
 
-            # Заполнение номеров работ
-            for i in range(0, self.num_str_in_table):
-                self.num_jobs_table = QtWidgets.QTableWidgetItem(str(i + 1))
-                # print(i)
-                self.table_jobs.setItem(i, 0, self.num_jobs_table)
-                self.num_jobs_table.setTextAlignment(QtCore.Qt.AlignCenter)
-                self.num_jobs_table.setFlags(QtCore.Qt.ItemIsEnabled)
+                # Заполнение номеров работ
+                for i in range(0, self.num_str_in_table):
+                    self.num_jobs_table = QtWidgets.QTableWidgetItem(str(i + 1))
+                    # print(i)
+                    self.table_jobs.setItem(i, 0, self.num_jobs_table)
+                    self.num_jobs_table.setTextAlignment(QtCore.Qt.AlignCenter)
+                    self.num_jobs_table.setFlags(QtCore.Qt.ItemIsEnabled)
 
-            # Заполнение остальных ячеек
-            for i in range(0, self.num_str_in_table):
-                for j in range(1, 3):
-                    self.cell = QtWidgets.QTableWidgetItem(str(i+1))
-                    self.table_jobs.setItem(i, j, self.cell)
-                    self.cell.setTextAlignment(QtCore.Qt.AlignCenter)
-                    #cell.setFlags(QtCore.Qt.ItemIsEnabled)
+            if self.flag_load_MSExcel == False:
+                print("IF")
+                # Заполнение остальных ячеек
+                for i in range(0, self.num_str_in_table):
+                    for j in range(1, 3):
+                        self.cell = QtWidgets.QTableWidgetItem("")
+                        self.table_jobs.setItem(i, j, self.cell)
+                        self.cell.setTextAlignment(QtCore.Qt.AlignCenter)
+                        # cell.setFlags(QtCore.Qt.ItemIsEnabled)
+            else:
+                print("create_table: ELSE")
+                # Заполнение столбца "Описание" из Excel
+                for i in range(0, self.num_str_in_table):
+                    self.coll_B = QtWidgets.QTableWidgetItem(lst_MSExcel_B[i + 1])
+                    print(lst_MSExcel_B[i+1])
+                    self.table_jobs.setItem(i, 1, self.coll_B)
+                    self.coll_B.setTextAlignment(QtCore.Qt.AlignCenter)
+
+                # Заполнение столбца "Длительность" из Excel
+                for i in range(0, self.num_str_in_table):
+                    self.coll_C = QtWidgets.QTableWidgetItem(str(lst_MSExcel_C[i + 1]))
+                    print(lst_MSExcel_C[i+1])
+                    self.table_jobs.setItem(i, 2, self.coll_C)
+                    self.coll_C.setTextAlignment(QtCore.Qt.AlignCenter)
+
 
     def check_table(self):
         '''
@@ -393,14 +582,35 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         if flag_col2 == False and flag_col3 == False:
             self.open_win_order_of_work()
+            self.flag_open_MSExcel = True
             '''for i in range(0, self.num_str_in_table):
                 for j in range(1, 3):
                     cell.setFlags(QtCore.Qt.ItemIsEnabled)'''
+        else:
+            self.left = 150
+            self.top = 270
+            self.msg_box.setGeometry(self.left, self.top, 572, 550)
+            self.msg_box.setText("Необходимо заполнить или проверить данные\n" +\
+                                 "в ячейках, которые отмечены красным цветом!")
+            self.msg_box.setFont(self.font)
+            self.msg_box.exec()
 
     def clear_info(self):
         '''
         Метод возвращает окно в исходное состояние
         '''
+        print("clear_info:",self.flag_load_MSExcel)
+        if self.flag_load_MSExcel == True:
+            for i in range(0, self.num_str_in_table):
+                for j in range(1, 3):
+                    self.cell = QtWidgets.QTableWidgetItem("")
+                    self.table_jobs.setItem(i, j, self.cell)
+                    self.cell.setTextAlignment(QtCore.Qt.AlignCenter)
+
+        self.flag_open_MSExcel = False
+        self.flag_load_MSExcel = False
+
+
         self.table_jobs.setRowCount(0)
         self.table_jobs.setVisible(False)
         self.pushButton_order_of_work.setVisible(False)
@@ -449,10 +659,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.order_of_work.close()
 
     def open_win_order_of_work(self):
-        # Смещаем главное окно, чтобы было видно дочернее
+        self.MSExel = True
+        '''# Смещаем главное окно, чтобы было видно дочернее
         self.left = 30
         self.top = 70
-        self.setGeometry(self.left, self.top, 572, 550)
+        self.setGeometry(self.left, self.top, 572, 550)'''
 
         self.font = QtGui.QFont()
         self.font.setFamily("Bahnschrift SemiLight SemiConde")
@@ -772,7 +983,6 @@ class Win_OrderOfWork(Ui_MainWindow):
                 len(set(lst_btn_row)) == num_str_in_table - 1:
             self.label_part2.setVisible(True)
             self.building.calculation_of_indicators(num_str_in_table)
-
         else:
             self.msg_box_win_order_of_work.setIcon(QtWidgets.QMessageBox.Warning)
             self.msg_box_win_order_of_work.setWindowTitle("Предупреждение")
@@ -1409,6 +1619,8 @@ class BuildingNetworkGraph():
         ''')
         fileHTML.close()
 
+        os.system(r"files\\Info.html")
+
 # Нахождение max значений раннего начала
 def maxValue_HTML(i):
     if len(dict_in_vtx[i]) > 1:
@@ -1489,17 +1701,4 @@ if __name__ == '__main__':
     w = Ui_MainWindow()
     w.show()
     sys.exit(app.exec_())
-
-
-def my_excepthook(type, value, tback):
-    import sys
-    QtWidgets.QMessageBox.critical(
-        window, "CRITICAL ERROR", str(value),
-        QtWidgets.QMessageBox.Cancel
-    )
-
-    sys.__excepthook__(type, value, tback)
-
-sys.excepthook = my_excepthook
-
 
