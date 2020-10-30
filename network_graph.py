@@ -1,18 +1,22 @@
+#!/usr/bin/python3
 # coding: utf8
+
 '''
 Программа для построения сетевых графиков
 -----------------------------------------
 Автор: Винокурова Д.В.
 '''
 from random import randint
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 from files.general_methods import StyleWidgets
 import os, networkx as nx
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle, Font, Side, Border, Alignment
 from datetime import datetime as dt
 import webbrowser as wb
-import subprocess
+import platform
+from winreg import OpenKey, QueryValueEx, HKEY_CURRENT_USER
+
 
 # Преобразование LaTeX в http запрос
 def httpText(strF):
@@ -51,10 +55,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("Построение сетевого графика")
 
         # Флаг отвечает за сохранение таблицы в MS Excel
-        self.flag_open_MSExcel = True
+        self.flag_save_MSExcel = True
         # Флаг отвечает за загрузку данных из Excel
         self.flag_load_MSExcel = False
-
 
 
     def setupUi(self, MainWindow):
@@ -66,18 +69,70 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.setMaximumSize(572, 550)
+        MainWindow.setCentralWidget(self.centralwidget)
 
-        self.font = QtGui.QFont()
-        self.font.setFamily("Bahnschrift SemiLight SemiConde")
-        self.font.setPointSize(12)
+        # type_OS - тип установленной ОС. От этого зависит какого размера будет шрифт.
+        type_OS = platform.system() + str(" ") + platform.release()
+        type_OS = type_OS.lower()
 
-        self.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
+        #type_OS = "Windows 7"
+        #type_OS = type_OS.lower()
+        if type_OS == "windows 7" or "windows 8" in type_OS:
+            self.small_font = True
+            #print("Умеьшенный шрифт")
+        elif "windows 10" in type_OS:
+            self.small_font = False
+            #print("Нормальный шрифт")
+
+        # Возвращаем бруезер, который устанолвен по умолчанию.
+        # Браузеры Google Chrome, Mozilla Firefox корректно отображают информацию,
+        # в остальных могут наблюдаться изменения.
+        try:
+            with OpenKey(HKEY_CURRENT_USER,
+                         r"Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice") as key:
+                browser = QueryValueEx(key, 'Progid')[0]
+        except FileNotFoundError:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(16)
+
+            self.label_browser = QtWidgets.QLabel(self.centralwidget)
+            self.label_browser.setGeometry(QtCore.QRect(90, 165, 390, 50))
+            self.label_browser.setObjectName("label")
+            self.label_browser.setText("Для корректной работы установите по умолчанию \nGoogle Chrome или Mozilla Firefox!")
+            self.label_browser.setStyleSheet("color: 'red'")
+            self.label_browser.setFont(self.font)
+
+        if not("Chrome" in browser or "Firefox" in browser):
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(16)
+
+            self.label_browser = QtWidgets.QLabel(self.centralwidget)
+            self.label_browser.setGeometry(QtCore.QRect(90, 165, 390, 50))
+            self.label_browser.setObjectName("label")
+            self.label_browser.setText("Для корректной работы установите \nGoogle Chrome или Mozilla Firefox!")
+            self.label_browser.setStyleSheet("color: 'red'")
+            self.label_browser.setFont(self.font)
+
+        # Устанавливаем размер шрифта в зависимости от типа ОС (флаг self.small_font)
+        if self.small_font == False:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(12)
+        else:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(10)
+
+
+        self.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
 
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(20, 38, 181, 20))
         self.label.setObjectName("label")
+        self.label.setText("Выберите количество работ:")
         self.label.setFont(self.font)
-        MainWindow.setCentralWidget(self.centralwidget)
 
         self.spinBox_num_jobs = QtWidgets.QSpinBox(self.centralwidget)
         self.spinBox_num_jobs.setGeometry(QtCore.QRect(210, 39, 42, 22))
@@ -89,6 +144,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_next.setGeometry(QtCore.QRect(270, 36, 75, 27))
         self.pushButton_next.setObjectName("pushButton_next")
         self.pushButton_next.clicked.connect(self.set_flag)
+        self.pushButton_next.setText("Далее")
         self.pushButton_next.setFont(self.font)
         background_color = "#51d77a"
         border_color = "#2d8849"
@@ -111,6 +167,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_reset = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_reset.setGeometry(QtCore.QRect(370, 36, 180, 27))
         self.pushButton_reset.setObjectName("pushButton_reset")
+        self.pushButton_reset.setText("Создать новую таблицу")
         self.pushButton_reset.setFont(self.font)
         self.pushButton_reset.clicked.connect(self.clear_info)
         background_color = "#fa7070"
@@ -129,14 +186,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                     background_color_hover, border_color_hover, color_hover,
                                     background_color_press, border_color_press, color_press,
                                     border_width, border_radius)
-
-            #central_widget = QtWidgets.QWidget(self.centralwidget)
-        #self.setCentralWidget(central_widget)
-        #self.setWindowTitle("Сведения об экзаменуемых")
-
-        self.font = QtGui.QFont()
-        self.font.setFamily("Bahnschrift SemiLight SemiConde")
-        self.font.setPointSize(12)
 
         self.table_jobs = QtWidgets.QTableWidget(self.centralwidget)  # Создаём таблицу
         self.table_jobs.setFont(self.font)
@@ -176,9 +225,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                        border_width, border_radius)
         self.pushButton_order_of_work.setVisible(False)
 
-        self.font = QtGui.QFont()
-        self.font.setFamily("Bahnschrift SemiLight SemiConde")
-        self.font.setPointSize(11)
+
+        if self.small_font == False:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(11)
+        else:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(9)
         self.label_author = QtWidgets.QLabel(self.centralwidget)
         self.label_author.setGeometry(QtCore.QRect(20, 490, 181, 20))
         self.label_author.setObjectName("label_author")
@@ -197,47 +252,87 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.action_instruction.setText("Инструкция")
         self.menubar.addAction(self.action_instruction)
 
-        self.action_template = QtWidgets.QAction(MainWindow)
-        self.action_template.triggered.connect(self.open_template)
-        self.action_template.setText("Заполнить Excel шаблон")
-        self.menubar.addAction(self.action_template)
-
         self.action_save_MSExcel = QtWidgets.QAction(MainWindow)
         self.action_save_MSExcel.triggered.connect(self.save_MSExcel)
-        self.action_save_MSExcel.setText("Сохранить в MS Excel")
+        self.action_save_MSExcel.setText("Сохранить таблицу в Excel ")
         self.menubar.addAction(self.action_save_MSExcel)
 
         self.action_download_MSExcel = QtWidgets.QAction(MainWindow)
         self.action_download_MSExcel.triggered.connect(self.download_MSExcel)
-        self.action_download_MSExcel.setText("Загрузить из MS Excel")
+        self.action_download_MSExcel.setText("Загрузить таблицу из файла")
         self.menubar.addAction(self.action_download_MSExcel)
+
+
+        bar = self.menuBar()
+        self.delete = bar.addMenu("Удалить ...")
+
+        self.action_delete_file_MSExcel = QtWidgets.QAction(MainWindow)
+        self.action_delete_file_MSExcel.triggered.connect(self.delete_file_MSExcel)
+        self.action_delete_file_MSExcel.setText("Удалить файл")
+        self.delete.addAction(self.action_delete_file_MSExcel)
+        #self.menubar.addAction(self.action_delete_file_MSExcel)
+
+        self.action_delete_files = QtWidgets.QAction(MainWindow)
+        self.action_delete_files.triggered.connect(self.delete_files)
+        self.action_delete_files.setText("Удалить все файлы")
+        #self.menubar.addAction(self.action_delete_files)
+        self.delete.addAction(self.action_delete_files)
+
 
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton_next.setText(_translate("MainWindow", "Далее"))
-        self.pushButton_reset.setText(_translate("MainWindow", "Создать новую таблицу"))
-        self.label.setText(_translate("MainWindow", "Выберите количество работ:"))
+        self.delete_excel_file = Win_DeleteExcelFile(self)
+
+
+    def closeEvent(self, event):
+        '''
+        Запрос разрешения на закрытие программы.
+        '''
+        self.main_win_dialog_yes_no = QtWidgets.QMessageBox()
+        self.main_win_dialog_yes_no.addButton("Да", QtWidgets.QMessageBox.AcceptRole)
+        self.main_win_dialog_yes_no.addButton("Нет", QtWidgets.QMessageBox.AcceptRole)
+        self.main_win_dialog_yes_no.setIcon(QtWidgets.QMessageBox.Information)
+        self.main_win_dialog_yes_no.setWindowTitle("Удаление")
+        self.main_win_dialog_yes_no.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
+
+        self.left = 150
+        self.top = 210
+        self.main_win_dialog_yes_no.setGeometry(self.left, self.top, 100, 550)
+        self.main_win_dialog_yes_no.setText("Вы уверены, что хотите закрыть программу?")
+        self.main_win_dialog_yes_no.setFont(self.font)
+        self.main_win_dialog_yes_no.exec()
+
+        if self.main_win_dialog_yes_no.clickedButton().text() == "Да":
+            event.accept()
+        elif self.main_win_dialog_yes_no.clickedButton().text() == "Нет":
+            event.ignore()
+
+
+    def open_instruction(self):
+        '''
+        Загружается инструкция в *.pdf
+        '''
+        print("открывается инструкция")
+        wb.open("files\\7_SegmentIndicator.pdf", new=2)
+
 
     def save_MSExcel(self):
         '''
         Метод позволяет сохранять таблицу в MS Excel.
         '''
+        self.delete_excel_file.close()
         try:
             self.msg_box_save_MSExcel = QtWidgets.QMessageBox()
             self.msg_box_save_MSExcel.setFixedSize(100, 500)
             self.msg_box_save_MSExcel.adjustSize()
             self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
-            self.msg_box_save_MSExcel.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
+            self.msg_box_save_MSExcel.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
             self.msg_box_save_MSExcel.setWindowTitle("Предупреждение")
-            if self.flag_open_MSExcel == True:
+            if self.flag_save_MSExcel == True:
                 wb = Workbook()
                 sheet = wb.active
                 sheet.title = "Проводимые работы"
@@ -294,33 +389,70 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     sheet["A" + str(row)] = str(i + 1)
                     sheet["B" + str(row)] = lst_work_description[i]
                     sheet["C" + str(row)] = lst_work_day[i]
-                    print(lst_work_description[i], lst_work_day[i])
 
-                fileName = "files\\excel_files\\Проводимые_работы.xlsx"
-                wb.save(fileName)
 
-                os.chdir(sys.path[0])
-                subprocess.Popen(fileName, shell=True)
-                #os.system('start excel.exe "%s\\%s"' % (sys.path[0], fileName,))
+                entered_file_name, ok = QtWidgets.QInputDialog.getText(self, 'Имя файла',
+                                                                       'Введите имя файла:')
+                if ok and entered_file_name != "":
+                    fileName = "files\\excel_files\\" + str(entered_file_name) + ".xlsx"
+                    wb.save(fileName)
+
+                    self.left = 160
+                    self.top = 270
+                    self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Information)
+                    self.msg_box_save_MSExcel.setWindowTitle("Информация")
+                    self.msg_box_save_MSExcel.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
+                    self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
+                    self.msg_box_save_MSExcel.setText("Файл «" + str(entered_file_name) +\
+                                                      ".xlsx» \nуспешно сохранен!")
+                    self.msg_box_save_MSExcel.setFont(self.font)
+                    self.msg_box_save_MSExcel.exec()
+                elif entered_file_name == "":
+                    self.left = 140
+                    self.top = 270
+                    self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Information)
+                    self.msg_box_save_MSExcel.setWindowTitle("Информация")
+                    self.msg_box_save_MSExcel.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
+                    self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
+                    self.msg_box_save_MSExcel.setText("Имя файла не может быть пустым!")
+                    self.msg_box_save_MSExcel.setFont(self.font)
+                    self.msg_box_save_MSExcel.exec()
+                else:
+                    self.left = 140
+                    self.top = 270
+                    self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Information)
+                    self.msg_box_save_MSExcel.setWindowTitle("Информация")
+                    self.msg_box_save_MSExcel.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
+                    self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
+                    self.msg_box_save_MSExcel.setText("Вы не ввели имя файла. Файл не сохранен!")
+                    self.msg_box_save_MSExcel.setFont(self.font)
+                    self.msg_box_save_MSExcel.exec()
             else:
-                self.left = 230
+                self.left = 80
                 self.top = 270
+                self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
+                self.msg_box_save_MSExcel.setWindowTitle("Предупреждение")
                 self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
-                self.msg_box_save_MSExcel.setText("Создайте таблицу!")
+                self.msg_box_save_MSExcel.setText("Создайте таблицу и нажмите кнопку " +\
+                                         "«Установить порядок \nвыполнения работ».")
                 self.msg_box_save_MSExcel.setFont(self.font)
                 self.msg_box_save_MSExcel.exec()
 
         except (KeyError, NameError):
             self.left = 80
             self.top = 270
+            self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
+            self.msg_box_save_MSExcel.setWindowTitle("Предупреждение")
             self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
             self.msg_box_save_MSExcel.setText("Таблица не проверена! Нажмите кнопку " +\
-                                         "\"Установить порядок \nвыполнения работ\".")
+                                         "«Установить порядок \nвыполнения работ».")
             self.msg_box_save_MSExcel.setFont(self.font)
             self.msg_box_save_MSExcel.exec()
         except PermissionError:
             self.left = 230
             self.top = 270
+            self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
+            self.msg_box_save_MSExcel.setWindowTitle("Предупреждение")
             self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
             self.msg_box_save_MSExcel.setText("Закройте MS Excel!")
             self.msg_box_save_MSExcel.setFont(self.font)
@@ -328,29 +460,29 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         except IndexError:
             self.left = 80
             self.top = 270
+            self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
+            self.msg_box_save_MSExcel.setWindowTitle("Предупреждение")
             self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
             self.msg_box_save_MSExcel.setText("Заполните таблицу и нажмите на кнопку " +\
-                                         "\"Установить порядок \nвыполнения работ\".")
+                                         "«Установить порядок \nвыполнения работ».")
             self.msg_box_save_MSExcel.setFont(self.font)
             self.msg_box_save_MSExcel.exec()
         except AttributeError:
             self.left = 230
             self.top = 270
+            self.msg_box_save_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
+            self.msg_box_save_MSExcel.setWindowTitle("Предупреждение")
             self.msg_box_save_MSExcel.setGeometry(self.left, self.top, 572, 550)
             self.msg_box_save_MSExcel.setText("Создайте таблицу!")
             self.msg_box_save_MSExcel.setFont(self.font)
             self.msg_box_save_MSExcel.exec()
 
 
-    def open_instruction(self):
-        print("открывается инструкция")
-        wb.open("files\\7_SegmentIndicator.pdf", new=2)
-
-
     def download_MSExcel(self):
         '''
         Метод позволяет загружать таблицу из MS Excel.
         '''
+        self.delete_excel_file.close()
 
         self.clear_info()
 
@@ -358,10 +490,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.msg_box_load_MSExcel.setFixedSize(100, 500)
         self.msg_box_load_MSExcel.adjustSize()
         self.msg_box_load_MSExcel.setIcon(QtWidgets.QMessageBox.Warning)
-        self.msg_box_load_MSExcel.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
+        self.msg_box_load_MSExcel.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
         self.msg_box_load_MSExcel.setWindowTitle("Предупреждение")
 
-        file_name_exel = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file',
+        file_name_exel = QtWidgets.QFileDialog.getOpenFileName(self, 'Загрузить файл',
                                                                'files\\excel_files',
                                                                "*.xlsx")[0]
         if file_name_exel != "":
@@ -387,7 +519,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.left = 70
                 self.top = 270
                 self.msg_box_load_MSExcel.setGeometry(self.left, self.top, 572, 550)
-                self.msg_box_load_MSExcel.setText("Неверно заполнен файл " + file_name_exel + "!")
+                self.msg_box_load_MSExcel.setText("Неверно заполнен файл «" + file_name_exel + "»!")
                 self.msg_box_load_MSExcel.setFont(self.font)
                 self.msg_box_load_MSExcel.exec()
             else:
@@ -400,76 +532,75 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             print(lst_MSExcel_B)
             print(lst_MSExcel_C)'''
 
-    def open_template(self):
-        wb = Workbook()
-        sheet = wb.active
-        sheet.title = "Проводимые работы"
 
-        # Задаем стиль1
-        ns1 = NamedStyle(name="style1")
-        ns1.font = Font(bold=True, size=12)
-        border = Side(style="thin", color="000000")
-        ns1.border = Border(left=border, top=border,
-                            right=border, bottom=border)
-        ns1.alignment = Alignment(wrap_text=True, horizontal="center",
-                                  vertical="center")
-        wb.add_named_style(ns1)
-        # ---------------------
-        # Задаем стиль2
-        ns2 = NamedStyle(name="style2")
-        ns2.font = Font(size=12)
-        border = Side(style="thin", color="000000")
-        ns2.border = Border(left=border, top=border,
-                            right=border, bottom=border)
-        ns2.alignment = Alignment(horizontal="center",
-                                  vertical="center")
-        wb.add_named_style(ns2)
-        # ---------------------
-        # Задаем стиль2
-        ns3 = NamedStyle(name="style3")
-        ns3.font = Font(size=12)
-        border = Side(style="thin", color="000000")
-        ns3.border = Border(left=border, top=border,
-                            right=border, bottom=border)
-        ns3.alignment = Alignment(wrap_text=True, horizontal="left",
-                                  vertical="center")
-        wb.add_named_style(ns3)
+    def delete_file_MSExcel(self):
+        '''
+        Метод запускает метод удаления excel
+        файла из класса Win_DeleteExcelFile
+        '''
+        self.delete_excel_file.update_combobox()
+        self.delete_excel_file.show()
 
-        sheet.column_dimensions["B"].width = 42
-        sheet.column_dimensions["C"].width = 15
-        sheet.row_dimensions[1].height = 30
 
-        row = 1
-        sheet["A" + str(row)].style = "style1"
-        sheet["B" + str(row)].style = "style1"
-        sheet["C" + str(row)].style = "style1"
+    def delete_files(self):
+        '''
+        Удаление всех Excel файлов в папке excel_files
+        '''
+        self.delete_excel_file.close()
 
-        sheet["A" + str(row)] = "Номер\nработы"
-        sheet["B" + str(row)] = "Описание работы"
-        sheet["C" + str(row)] = "Длительность\n(дней)"
+        self.delete_files_yes_no = QtWidgets.QMessageBox()
+        self.delete_files_yes_no.addButton("Да", QtWidgets.QMessageBox.AcceptRole)
+        self.delete_files_yes_no.addButton("Нет", QtWidgets.QMessageBox.AcceptRole)
+        self.delete_files_yes_no.setIcon(QtWidgets.QMessageBox.Information)
+        self.delete_files_yes_no.setWindowTitle("Удаление")
+        self.delete_files_yes_no.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
 
-        for i in range(0, 5):
-            row += 1
-            sheet["A" + str(row)].style = "style2"
-            sheet["B" + str(row)].style = "style3"
-            sheet["C" + str(row)].style = "style2"
+        self.msg_box_delete_files_info = QtWidgets.QMessageBox()
+        self.msg_box_delete_files_info.setIcon(QtWidgets.QMessageBox.Information)
+        self.msg_box_delete_files_info.setWindowTitle("Информация")
+        self.msg_box_delete_files_info.setWindowIcon(QtGui.QIcon("files\\ico\\sucessfull.ico"))
 
-            sheet["A" + str(row)] = str(i + 1)
-            sheet["B" + str(row)] = ""
-            sheet["C" + str(row)] = ""
+        self.lst_files_for_delete = os.listdir("files\\excel_files")
+        if len(self.lst_files_for_delete) == 0:
+            self.left = 180
+            self.top = 210
+            self.msg_box_delete_files_info.setGeometry(self.left, self.top, 100, 550)
+            self.msg_box_delete_files_info.setText("Файлы отсутсвуют!")
+            self.msg_box_delete_files_info.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
+            self.msg_box_delete_files_info.setFont(self.font)
+            self.msg_box_delete_files_info.exec()
+        else:
+            self.left = 160
+            self.top = 210
+            self.delete_files_yes_no.setGeometry(self.left, self.top, 100, 550)
+            self.delete_files_yes_no.setText("Вы уверены, что хотите удалить все файлы?\n"
+                                             "Это действие нельзя будет отменить.")
+            self.delete_files_yes_no.setFont(self.font)
+            self.delete_files_yes_no.exec()
 
-        data = data_for_file()
-        file_template = "files\\excel_files\\Шаблон_" + data + ".xlsx"
-        wb.save(file_template)
+            if self.delete_files_yes_no.clickedButton().text() == "Да":
+                self.res_delete_files_yes_no = True
+            elif self.delete_files_yes_no.clickedButton().text() == "Нет":
+                self.res_delete_files_yes_no = False
 
-        os.chdir(sys.path[0])
-        os.system('start excel.exe "%s\\%s"' % (sys.path[0], file_template,))
-        #os.system('open excel.exe "%s\\%s"' % (sys.path[0], file_template,))
+            if self.res_delete_files_yes_no:
+                for i in range(0, len(self.lst_files_for_delete)):
+                    os.remove("files\\excel_files\\" + str(self.lst_files_for_delete[i]))
+
+                self.left = 150
+                self.top = 210
+                self.msg_box_delete_files_info.setGeometry(self.left, self.top, 100, 550)
+                self.msg_box_delete_files_info.setText("Файлы успешно удалены!")
+                self.msg_box_delete_files_info.setFont(self.font)
+                self.msg_box_delete_files_info.exec()
+
+
+
 
     def set_flag(self):
         '''
         Метод необходим, чтобы установить флаг, который говорит о том, что
-        данные вводятся вручную
+        данные вводятся вручную.
         '''
         self.flag_load_MSExcel = False
         self.create_table()
@@ -480,9 +611,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         Создание таблицы с необходимым количеством строк,
         указанных в spinBox
         '''
-        self.font = QtGui.QFont()
+        '''self.font = QtGui.QFont()
         self.font.setFamily("Bahnschrift SemiLight SemiConde")
-        self.font.setPointSize(11)
+        self.font.setPointSize(11)'''
+        if self.small_font == False:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(11)
+        else:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(10)
 
         self.msg_box = QtWidgets.QMessageBox()
         self.msg_box.setFixedSize(100, 500)
@@ -530,7 +669,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     self.num_jobs_table.setFlags(QtCore.Qt.ItemIsEnabled)
 
             if self.flag_load_MSExcel == False:
-                print("IF")
+                #print("IF")
                 # Заполнение остальных ячеек
                 for i in range(0, self.num_str_in_table):
                     for j in range(1, 3):
@@ -539,18 +678,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                         self.cell.setTextAlignment(QtCore.Qt.AlignCenter)
                         # cell.setFlags(QtCore.Qt.ItemIsEnabled)
             else:
-                print("create_table: ELSE")
+                #print("ELSE")
                 # Заполнение столбца "Описание" из Excel
                 for i in range(0, self.num_str_in_table):
                     self.coll_B = QtWidgets.QTableWidgetItem(lst_MSExcel_B[i + 1])
-                    print(lst_MSExcel_B[i+1])
                     self.table_jobs.setItem(i, 1, self.coll_B)
                     self.coll_B.setTextAlignment(QtCore.Qt.AlignCenter)
 
                 # Заполнение столбца "Длительность" из Excel
                 for i in range(0, self.num_str_in_table):
                     self.coll_C = QtWidgets.QTableWidgetItem(str(lst_MSExcel_C[i + 1]))
-                    print(lst_MSExcel_C[i+1])
                     self.table_jobs.setItem(i, 2, self.coll_C)
                     self.coll_C.setTextAlignment(QtCore.Qt.AlignCenter)
 
@@ -588,7 +725,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         if flag_col2 == False and flag_col3 == False:
             self.open_win_order_of_work()
-            self.flag_open_MSExcel = True
+            self.flag_save_MSExcel = True
             '''for i in range(0, self.num_str_in_table):
                 for j in range(1, 3):
                     cell.setFlags(QtCore.Qt.ItemIsEnabled)'''
@@ -605,7 +742,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         '''
         Метод возвращает окно в исходное состояние
         '''
-        print("clear_info:",self.flag_load_MSExcel)
+        #print("clear_info:",self.flag_load_MSExcel)
         if self.flag_load_MSExcel == True:
             for i in range(0, self.num_str_in_table):
                 for j in range(1, 3):
@@ -613,7 +750,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     self.table_jobs.setItem(i, j, self.cell)
                     self.cell.setTextAlignment(QtCore.Qt.AlignCenter)
 
-        self.flag_open_MSExcel = False
+        self.flag_save_MSExcel = False
         self.flag_load_MSExcel = False
 
 
@@ -666,54 +803,76 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def open_win_order_of_work(self):
         self.MSExel = True
-        '''# Смещаем главное окно, чтобы было видно дочернее
-        self.left = 30
-        self.top = 70
-        self.setGeometry(self.left, self.top, 572, 550)'''
 
-        self.font = QtGui.QFont()
-        self.font.setFamily("Bahnschrift SemiLight SemiConde")
-        self.font.setPointSize(11)
+        if self.small_font == False:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(11)
+        else:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(10)
+
         self.table_jobs.horizontalHeaderItem(0).setFont(self.font)
         self.table_jobs.horizontalHeaderItem(1).setFont(self.font)
         self.table_jobs.horizontalHeaderItem(2).setFont(self.font)
 
         self.order_of_work.show()
-        self.order_of_work.add_buttons(self.num_str_in_table)
+        self.order_of_work.add_buttons(self.num_str_in_table, self.small_font)
 
-        """self.pushButton_reset.setEnabled(False)
-        self.pushButton_reset.setStyleSheet('''
-                                            background-color: "#cccccc";
-                                            border-style: solid;
-                                            border-color: "#909090";
-                                            border-width: 1px;
-                                            border-radius: 2px;
-                                            color: "#909090";''')"""
 
-        """self.pushButton_order_of_work.setEnabled(False)
-        self.pushButton_order_of_work.setStyleSheet('''
-                                    background-color: "#cccccc";
-                                    border-style: solid;
-                                    border-color: "#909090";
-                                    border-width: 1px;
-                                    border-radius: 2px;
-                                    color: "#909090";''')"""
-        #self.order_of_work.pushButton_cancel_building.clicked.connect(self.cancel_building)
+# Класс окна для удаления Excel файлов
+class Win_DeleteExcelFile(QtWidgets.QMainWindow):
+    def __init__(self, window = None):
+        self.window = window
+        super(Win_DeleteExcelFile, self).__init__(window)
+        self.show_files(self)
 
-    def cancel_building(self):
+    def show_files(self, MainWindow):
         '''
-        Метод позволяет вернуться к таблице выбора работ и ввести
-        необходимую информацию.
+        Метод отображает окно с combobox для выбора
+        необходимого файла для удаления
         '''
-        self.font = QtGui.QFont()
-        self.font.setFamily("Bahnschrift SemiLight SemiConde")
-        self.font.setPointSize(11)
-        self.table_jobs.horizontalHeaderItem(0).setFont(self.font)
-        self.table_jobs.horizontalHeaderItem(1).setFont(self.font)
-        self.table_jobs.horizontalHeaderItem(2).setFont(self.font)
+        if self.window.small_font == False:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(12)
+        else:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(10)
 
-        button_style = StyleWidgets()
-        self.pushButton_reset.setEnabled(True)
+        self.setWindowTitle("Удаление файлов")
+        # self.resize(700, 550)
+        self.left = 610
+        self.top = 170
+        self.setGeometry(self.left, self.top, 400, 200)
+        self.setWindowIcon(QtGui.QIcon("files\\ico\\delete_excel.ico"))
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        MainWindow.setCentralWidget(self.centralwidget)
+
+        self.label_file_selection = QtWidgets.QLabel(self.centralWidget())
+        self.label_file_selection.setFont(self.font)
+        self.label_file_selection.setGeometry(QtCore.QRect(60, 20, 390, 50))
+        self.label_file_selection.setObjectName("label_file_selection")
+        self.label_file_selection.setText("Выберите один из файлов:")
+
+
+        self.lst_all_files = os.listdir("files\\excel_files")
+        self.combobox_files = QtWidgets.QComboBox(self.centralwidget)
+        self.combobox_files.setGeometry(QtCore.QRect(60, 70, 250, 25))
+        self.combobox_files.setFont(self.font)
+        self.selected_file_combobox = self.combobox_files.currentText()
+        self.combobox_files.addItems(self.lst_all_files)
+        self.combobox_files.activated.connect(self.selected_file)
+
+        self.pushButton_delete_file = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_delete_file.setGeometry(QtCore.QRect(230, 120, 80, 27))
+        self.pushButton_delete_file.setObjectName("pushButton_reset")
+        self.pushButton_delete_file.setFont(self.font)
+        self.pushButton_delete_file.setText("Удалить")
+        self.pushButton_delete_file.clicked.connect(self.delete_file)
         background_color = "#fa7070"
         border_color = "#9a2222"
         color = "#9a2222"
@@ -725,39 +884,92 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         color_press = "#f3a5a5"
         border_width = "1px"
         border_radius = "2px"
-        button_style.properties_button(self.pushButton_reset, background_color,
+        button_style = StyleWidgets()
+        button_style.properties_button(self.pushButton_delete_file, background_color,
                                        border_color, color,
                                        background_color_hover, border_color_hover, color_hover,
                                        background_color_press, border_color_press, color_press,
                                        border_width, border_radius)
 
-        self.pushButton_order_of_work.setEnabled(True)
-        background_color = "#6cbef1"
-        border_color = "#155b87"
-        color = "#155b87"
-        background_color_hover = "#bbe1f9"
-        border_color_hover = "#155b87"
-        color_hover = "#155b87"
-        background_color_press = "#3a84b3"
-        border_color_press = "#3a84b3"
-        color_press = "#155b87"
-        border_width = "1px"
-        border_radius = "2px"
-        button_style.properties_button(self.pushButton_order_of_work, background_color,
-                                       border_color, color,
-                                       background_color_hover, border_color_hover, color_hover,
-                                       background_color_press, border_color_press, color_press,
-                                       border_width, border_radius)
-        self.order_of_work.close()
+        self.msg_box_delete_file = QtWidgets.QMessageBox()
+        self.msg_box_delete_file.setFixedSize(100, 500)
+        self.msg_box_delete_file.adjustSize()
+        self.msg_box_delete_file.setIcon(QtWidgets.QMessageBox.Warning)
+        self.msg_box_delete_file.setWindowIcon(QtGui.QIcon("files\\ico\\delete_excel.ico"))
+        self.msg_box_delete_file.setWindowTitle("Предупреждение")
 
+        self.msg_box_delete_file_info = QtWidgets.QMessageBox()
+        self.msg_box_delete_file_info.setIcon(QtWidgets.QMessageBox.Information)
+        self.msg_box_delete_file_info.setWindowTitle("Информация")
+        self.msg_box_delete_file_info.setWindowIcon(QtGui.QIcon("files\\ico\\sucessfull.ico"))
+
+        self.dialog_yes_no = QtWidgets.QMessageBox()
+        self.dialog_yes_no.addButton("Да", QtWidgets.QMessageBox.AcceptRole)
+        self.dialog_yes_no.addButton("Нет", QtWidgets.QMessageBox.AcceptRole)
+        self.dialog_yes_no.setIcon(QtWidgets.QMessageBox.Information)
+        self.dialog_yes_no.setWindowTitle("Удаление")
+        self.dialog_yes_no.setWindowIcon(QtGui.QIcon("files\\ico\\delete_excel.ico"))
+
+
+    def selected_file(self):
+        '''
+        Выбор названия файла из списка combobox.
+        '''
+        self.selected_file_combobox = self.combobox_files.currentText()
+
+    def delete_file(self):
+        '''
+        Удаление excel файла.
+        '''
+        if self.selected_file_combobox == "":
+            self.left = 710
+            self.top = 210
+            self.msg_box_delete_file.setGeometry(self.left, self.top, 572, 550)
+            self.msg_box_delete_file.setText("Выберите файл!")
+            self.msg_box_delete_file.setFont(self.font)
+            self.msg_box_delete_file.exec()
+        else:
+            self.left = 550
+            self.top = 210
+            self.dialog_yes_no.setGeometry(self.left, self.top, 100, 550)
+            self.dialog_yes_no.setText("Вы уверены, что хотите удалить файл «" +\
+                                                   self.selected_file_combobox + "»?")
+            self.dialog_yes_no.setFont(self.font)
+            self.dialog_yes_no.exec()
+
+            if self.dialog_yes_no.clickedButton().text() == "Да":
+                self.res_dialog_yes_no = True
+            elif self.dialog_yes_no.clickedButton().text() == "Нет":
+                self.res_dialog_yes_no = False
+
+            if self.res_dialog_yes_no:
+                os.remove("files\\excel_files\\" + str(self.selected_file_combobox))
+                self.update_combobox()
+
+                self.left = 630
+                self.top = 210
+                self.msg_box_delete_file_info.setGeometry(self.left, self.top, 100, 550)
+                self.msg_box_delete_file_info.setText("Файл «" + self.selected_file_combobox +\
+                                                      "» \nуспешно удален!")
+                self.msg_box_delete_file_info.setFont(self.font)
+                self.msg_box_delete_file_info.exec()
+
+                self.selected_file_combobox = self.combobox_files.currentText()
+
+
+    def update_combobox(self):
+        self.combobox_files.clear()
+        self.lst_all_files = os.listdir("files\\excel_files")
+        self.lst_all_files.insert(0, "")
+        self.combobox_files.addItems(self.lst_all_files)
 
 
 
 # Класс для окна с порядком выполнения работ
-class Win_OrderOfWork(Ui_MainWindow):
+class Win_OrderOfWork(QtWidgets.QMainWindow):
     def __init__(self, window = None):
-        QtWidgets.QWidget.__init__(self)
-        #super(Win_OrderOfWork, self).__init__(window)
+        #QtWidgets.QWidget.__init__(self)
+        super(Win_OrderOfWork, self).__init__(window)
         self.window = window
         self.msg_box_win_order_of_work = QtWidgets.QMessageBox()
         self.msg_box_win_order_of_work.setFixedSize(100, 500)
@@ -766,29 +978,26 @@ class Win_OrderOfWork(Ui_MainWindow):
         # Пока дочернее окно открыто запрещаем переход на главное
         # self.setWindowModality(QtCore.Qt.ApplicationModal)
 
-        self.font = QtGui.QFont()
-        self.font.setFamily("Bahnschrift SemiLight SemiConde")
-        self.font.setPointSize(11)
-
         self.building = BuildingNetworkGraph()
 
         # Запрет нажатия крестика
         # self.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False)
 
 
-
-    '''def closeEvent(self, event):
-        print("Закрыто")
-        flag_win_order_of_work = True
-        print(flag_win_order_of_work)
-        #self.pushButton_reset.setEnabled(True)
-        #Ui_MainWindow.cancel_building()'''
-
-    def add_buttons(self, num_str_in_table):
+    def add_buttons(self, num_str_in_table, small_font):
         '''
         Данный метод размещает в окне два виджета и
         размещает кнопки для выбора работ.
         '''
+        if small_font == False:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(12)
+        else:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(10)
+
         self.setWindowTitle("Порядок выполнения работ")
         #self.resize(700, 550)
         self.left = 610
@@ -797,7 +1006,7 @@ class Win_OrderOfWork(Ui_MainWindow):
 
         #self.setMaximumSize(1000, 700)
 
-        self.setWindowIcon(QtGui.QIcon("files\\NetDiag.ico"))
+        self.setWindowIcon(QtGui.QIcon("files\\ico\\order_works.ico"))
 
         self.main_widget = QtWidgets.QWidget()
         self.vertical_layout = QtWidgets.QVBoxLayout(self.main_widget)
@@ -811,10 +1020,10 @@ class Win_OrderOfWork(Ui_MainWindow):
         self.horizontal_layout.addItem(spacerItem1)
 
         self.label_part1 = QtWidgets.QLabel(self.main_widget)
-        font = QtGui.QFont()
+        '''font = QtGui.QFont()
         font.setFamily("Bahnschrift SemiLight SemiConde")
-        font.setPointSize(12)
-        self.label_part1.setFont(font)
+        font.setPointSize(12)'''
+        self.label_part1.setFont(self.font)
         self.label_part1.setObjectName("label_part1")
         self.label_part1.setText("Укажите порядок выполнения работ.")
         self.horizontal_layout.addWidget(self.label_part1)
@@ -828,7 +1037,7 @@ class Win_OrderOfWork(Ui_MainWindow):
         self.pushButton_building.setText("Далее")
         self.pushButton_building.clicked.connect(
             lambda: self.check_buttons(num_str_in_table))
-        self.pushButton_building.setFont(font)
+        self.pushButton_building.setFont(self.font)
         background_color = "#51d77a"
         border_color = "#2d8849"
         color = "#2d8849"
@@ -850,31 +1059,6 @@ class Win_OrderOfWork(Ui_MainWindow):
 
         spacerItem3 = QtWidgets.QSpacerItem(20, 50)
         self.horizontal_layout.addItem(spacerItem3)
-
-        '''self.pushButton_cancel_building = QtWidgets.QPushButton(self.main_widget)
-        self.pushButton_cancel_building.setMinimumSize(160, 27)
-        self.pushButton_cancel_building.setObjectName("pushButton_cancel_building")
-        self.pushButton_cancel_building.setText("Вернуться к таблице")
-        self.pushButton_cancel_building.setFont(font)
-        background_color = "#fa7070"
-        border_color = "#9a2222"
-        color = "#9a2222"
-        background_color_hover = "#f3a5a5"
-        border_color_hover = "#9a2222"
-        color_hover = "#9a2222"
-        background_color_press = "#d33a3a"
-        border_color_press = "#9a2222"
-        color_press = "#f3a5a5"
-        border_width = "1px"
-        border_radius = "2px"
-        button_style = StyleWidgets()
-        button_style.properties_button(self.pushButton_cancel_building,
-                                       background_color,
-                                       border_color, color,
-                                       background_color_hover, border_color_hover, color_hover,
-                                       background_color_press, border_color_press, color_press,
-                                       border_width, border_radius)
-        self.horizontal_layout.addWidget(self.pushButton_cancel_building)'''
 
         self.label_part2 = QtWidgets.QLabel(self.main_widget)
         font = QtGui.QFont()
@@ -910,6 +1094,16 @@ class Win_OrderOfWork(Ui_MainWindow):
         # self.widget_for_task.setStyleSheet("""background: green;""")
         scrollAreaBottom.setWidget(self.widget_for_buttons)
 
+        # Стиль шрифта для кнопок
+        if small_font == False:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(13)
+        else:
+            self.font = QtGui.QFont()
+            self.font.setFamily("Bahnschrift SemiLight SemiConde")
+            self.font.setPointSize(10)
+
         global lst_btn, lst_btn_col, lst_btn_row
         lst_btn, lst_btn_col, lst_btn_row = [], [] ,[]
 
@@ -921,7 +1115,7 @@ class Win_OrderOfWork(Ui_MainWindow):
                     #print(str(i + 1) + "⇾" + str(j + 1), xJ, yI)
                     globals()["btn" + str(i+1) + "_" + str(j+1)] = QtWidgets.QPushButton(self.widget_for_buttons)
                     globals()["btn" + str(i+1) + "_" + str(j+1)].setGeometry(QtCore.QRect(xJ, yI, 60, 32))
-                    globals()["btn" + str(i+1) + "_" + str(j+1)].setFont(font)
+                    globals()["btn" + str(i+1) + "_" + str(j+1)].setFont(self.font)
                     globals()["btn" + str(i+1) + "_" + str(j+1)].setStyleSheet('''
                                                 background-color: "#cccccc";
                                                 border-style: solid;
@@ -929,11 +1123,6 @@ class Win_OrderOfWork(Ui_MainWindow):
                                                 border-width: 1px;
                                                 border-radius: 0px;
                                                 color: "#909090";''')
-                    '''button_style.properties_button(globals()["btn" + str(i) + "_" + str(j)], background_color,
-                                                   border_color, color,
-                                                   background_color_hover, border_color_hover, color_hover,
-                                                   background_color_press, border_color_press, color_press,
-                                                   border_width, border_radius)'''
                     globals()["btn" + str(i+1) + "_" + str(j+1)].setText(str(i + 1) + "⇾" + str(j + 1))
 
         # Обработка нажатой кнопки
@@ -994,6 +1183,10 @@ class Win_OrderOfWork(Ui_MainWindow):
             self.msg_box_win_order_of_work.setWindowTitle("Предупреждение")
             self.msg_box_win_order_of_work.setText("У каждой работы должна быть предшествующая!")
             self.msg_box_win_order_of_work.setFont(self.font)
+            self.left = 670
+            self.top = 250
+            self.msg_box_win_order_of_work.setGeometry(self.left, self.top, 700, 550)
+            self.msg_box_win_order_of_work.setWindowIcon(QtGui.QIcon("files\\ico\\order_works.ico"))
             self.msg_box_win_order_of_work.exec()
 
 class BuildingNetworkGraph():
@@ -1266,7 +1459,7 @@ class BuildingNetworkGraph():
                            "\"]\n")
         fileGV01.write("\n}")
         fileGV01.close()
-        os.system(r"files\\startGV.bat files\\NetworkGraph01.gv")
+        os.system(r"files\\startGV.bat files\\html\\NetworkGraph01.gv")
 
 
         # Построение промежуточных сетевых графиков (схема с ранним началом и
