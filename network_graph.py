@@ -19,7 +19,7 @@ from winreg import OpenKey, QueryValueEx, HKEY_CURRENT_USER
 
 
 # Преобразование LaTeX в http запрос
-def httpText(strF):
+def http_text(strF):
     strF = strF.replace("\\", "%5C")
     strF = strF.replace("{", "%7B")
     strF = strF.replace("}", "%7D")
@@ -33,7 +33,7 @@ def httpText(strF):
     return strHTTP
 
 # Генератор цвета
-def colorGenerate():
+def color_generate():
     r = randint(43, 240)
     g = randint(72, 240)
     b = randint(70, 240)
@@ -626,6 +626,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.msg_box = QtWidgets.QMessageBox()
         self.msg_box.setFixedSize(100, 500)
         self.msg_box.adjustSize()
+        self.msg_box.setWindowIcon(QtGui.QIcon("files\\ico\\NetDiag.ico"))
 
         self.num_str_in_table = self.spinBox_num_jobs.value()
         if 0 <= self.num_str_in_table <= 4:
@@ -732,8 +733,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         else:
             self.left = 150
             self.top = 270
+            self.msg_box.setWindowTitle("Предупреждение")
             self.msg_box.setGeometry(self.left, self.top, 572, 550)
-            self.msg_box.setText("Необходимо заполнить или проверить данные\n" +\
+            self.msg_box.setText("Необходимо заполнить и проверить данные\n" +\
                                  "в ячейках, которые отмечены красным цветом!")
             self.msg_box.setFont(self.font)
             self.msg_box.exec()
@@ -1255,7 +1257,7 @@ class BuildingNetworkGraph():
                                            lst_work_day[t - 1],
                                            ES + lst_work_day[t - 1],
                                            lst_work_description[t - 1]]})
-        #print("Значения РН, T, РО, описание: dictVtxValue:", dict_vtx_value)
+        print("dict_vtx_value:", dict_vtx_value)
 
         # Нахождение вершин, пути от которых ведут к текущей (обратный проход)
         lstBtnSortRev = sorted(lst_btn)
@@ -1299,7 +1301,7 @@ class BuildingNetworkGraph():
                 LS = LF - T
                 dict_vtx_value_rev.update({t: [LF - T, LS - ES, LF]})
             t -= 1
-        #print("Значения ПН, R, ПО: dictVtxValueRev:", dict_vtx_value_rev)
+        print("dict_vtx_value_rev:", dict_vtx_value_rev)
         self.network_graphViz(num_str_in_table)
 
     def network_graphViz(self, num_str_in_table):
@@ -1333,7 +1335,7 @@ class BuildingNetworkGraph():
 
         lst_color = []
         for i in range(1, num_str_in_table + 1):
-            lst_color.append(colorGenerate())
+            lst_color.append(color_generate())
 
         # Перенос слов в вершинах
         for i in range(1, num_str_in_table + 1):
@@ -1386,33 +1388,8 @@ class BuildingNetworkGraph():
         #reserves = list(nx.all_simple_paths(G, source=1, target=num_str_in_table))
         #print("reserves:", reserves)
         G = nx.DiGraph(tuple_lst_link_vtx)
-        '''roots = (v for v, d in G.in_degree() if d == 0)
-        leaves = [v for v, d in G.out_degree() if d == 0]
-        reserves = []
-        for root in roots:
-            paths = nx.all_simple_paths(G, root, leaves)
-            reserves.extend(paths)'''
         lst_reserves_int = list(nx.all_simple_paths(G, source=1, target=num_str_in_table))
         print("reserves:", lst_reserves_int,"\nКоличество путей:", len(lst_reserves_int))
-
-        ''''# Поиск индексов для создания нового списка.
-        # В найденных списках пути указаны не по возрастанию вершин, поэтому
-        # они не входят в новый список reserves_new.
-        lst_index_del = []
-        for t in range(0, len(reserves)):
-            if reserves[t] != sorted(reserves[t]):
-                lst_index_del.append(t)
-        #print("lst_index_del:", lst_index_del)
-
-        # Создание нового списка с необходимыми путями
-        print("------------------------")
-        reserves_new = []
-        for t in range(0, len(reserves)):
-            if not (t in lst_index_del):
-                reserves_new.append(reserves[t])
-                #print(t,reserves_new)
-        print("------------------------")
-        #print("Пути:",reserves_new, "\nКоличество путей:", len(reserves_new))'''
 
         # Запись вершин в файл
         for i in range(0, len(lst_btn_sort)):
@@ -1532,14 +1509,12 @@ class BuildingNetworkGraph():
         	<link rel = "shorctcut icon" href = "NetDiag.ico">
           </head>
           <body>
-
         	<div class = "text-content">
         	 <h1 class = "align-center">Построение сетевого графика</h1>
         	 <p><b>Сетевой график</b> – это ориентированный граф, где в вершинах 
         	 располагаются выполняемые работы, дугами – изображается связь между ними.  
         	 Каждая вершина содержит несколько параметров, используя необходимые 
         	 формулы можно рассчитать значения в каждой ячейке (рис. 1, формулы (1-5)).</p>
-
         	 <br />
         	 <table cellspacing = "0" cellpadding = "3" width = "50%" align = "center" class = "imgTable">
         	   <tr align = "center">
@@ -1557,16 +1532,13 @@ class BuildingNetworkGraph():
         	   </tr>
         	 </table>
         	 <p class = "smallText"> Рис. 1. Вершина сетевого графика с параметрами </p>
-
         	 <!-- Формулы под картинкой с параметрами -->
         	 <p class = "align-center">
         	   <img src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9D%7D_i%20%3D%20max%28T%5E%7B%D0%A0%D0%9E%7D_%7Bk%7D%29" />
         	   <img src="https://math.now.sh?from=%281%29" style = "padding: 0 3px 3px 10px" />
-
         	   <img style = "padding: 0 0 0 80px"
         	   src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9D%7D_i%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_i%20-%20T_i" />
         	   <img src="https://math.now.sh?from=%283%29" style = "padding: 0 3px 3px 20px" />
-
         	   <br />
         	   <img style = "padding: 0 0 0 20px"
         	   src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9E%7D_i%20%3D%20T%5E%7B%D0%A0%D0%9D%7D_i%20%2B%20T_i" />
@@ -1574,7 +1546,6 @@ class BuildingNetworkGraph():
         	   <img style = "padding: 0 0 0 80px"
         	   src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9E%7D_i%20%3D%20min%28T%5E%7B%D0%9F%D0%9D%7D_%7Bj%7D%29" />
         	   <img src="https://math.now.sh?from=%284%29" style = "padding: 0 3px 3px 10px" />
-
         	   <br />
         	   <img 
         	   src="https://math.now.sh?from=R_i%20%3D%20T%5E%7B%D0%9F%D0%9E%7D_i-T%5E%7B%D0%A0%D0%9E%7D_i%20%3D%20T%5E%7B%D0%9F%D0%9D%7D_i-T%5E%7B%D0%A0%D0%9D%7D_i%20" />
@@ -1585,37 +1556,30 @@ class BuildingNetworkGraph():
         	           <br /><img class = "textFormulas" src="https://math.now.sh?from=j%5Cin%20%5Cleft%5C%7Bi%2B1%2Ci%2B2%2C...%2Ci%2BN%5Cright%5C%7D" />
         	           <br />
         	           <img class = "textFormulas" 
-        			        src="https://math.now.sh?from=T%5E%7B%D0%0A0%D0%9D%7D_i" />
+        			        src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9D%7D_i" />
         			   - раннее начало		
-
         			   <br />
         			   <img style = "padding: 0px 17px 0 50px"
         			        src="https://math.now.sh?from=T_i" />
         			   - длительность работы
-
         			   <br />
         			   <img class = "textFormulas" 
         			        src="https://math.now.sh?from=T%5E%7B%D0%A0%D0%9E%7D_i" />
         			   - раннее окончание		
-
         			   <br />
         			   <img class = "textFormulas" 
         			        src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9D%7D_i" />
         			   - позднее начало
-
         			   <br />
         			   <img class = "textFormulas" 
         			        src="https://math.now.sh?from=T%5E%7B%D0%9F%D0%9E%7D_i" />
         		       - позднее окончание
-
         			   <br />
         			   <img style = "padding: 0px 17px 0 50px"
         			        src="https://math.now.sh?from=R_i" />
         			   - временной резерв
-
         	   </p>
         	 </p>
-
              <p> Описание и длительность необходимых работ представлены в таблице 1.</p>
              <p class = "smallText"> Таблица 1. Описание выполняемых работ </p>
              <div class="TableScroll">
@@ -1643,7 +1607,6 @@ class BuildingNetworkGraph():
         	     width = ''' + width_img + '''
         	  title = "Открыть в полном размере" class = "imgSetting"/></a>
         	  <p class = "smallText"> Рис. 2. Последовательность необходимых работ </p>
-
         	  <p> Рассчитаем значения параметров <b>раннего начала</b>
         	  и <b>раннего окончания</b> работ, используя формулы (1), (2). В первой
         	  вершине раннее начало работы будет равно нулю. Все остальные вычисления
@@ -1664,7 +1627,6 @@ class BuildingNetworkGraph():
         	    </p>''')
         for i in range(2, num_str_in_table + 1):
             fileHTML.write('''
-
         		<p style = "padding: 0">''' + \
                            maxValue_HTML(i) + \
                            '''
@@ -1682,14 +1644,11 @@ class BuildingNetworkGraph():
         	    </p>''')
         fileHTML.write('''
         	  </div>
-
         	  <a href = "NetworkGraph02.svg"><img src = "NetworkGraph02.jpg"
         	     width = "''' + width_img + '''"
         	  title = "Открыть в полном размере" class = "imgSetting"/></a>
         	  <p class = "smallText"> Рис. 3. Результаты вычислений
         	  раннего начала и окончания работ</p>
-
-
         	  <p> Следующий этап построения сетевого графика заключается в
         	  нахождении <b>позднего окончания</b>, <b>позднего начала</b> и
         	  <b>резерва времени</b> проводимых работ. В конечной работе <b>«''' + \
@@ -1725,7 +1684,6 @@ class BuildingNetworkGraph():
         i = num_str_in_table - 1
         while i != 0:
             fileHTML.write('''
-
         		<p style = "padding: 0">''' + \
                            minValue_HTML(i) + \
                            '''</p>
@@ -1754,7 +1712,6 @@ class BuildingNetworkGraph():
                      class = "imgSetting"/></a>
         	  <p class = "smallText"> Рис. 4. Результаты построения
         	  сетевого графика</p>
-
         	  <p>Вычислим резервы времени по каждому из путей:</p>
         	  <div class = "WinFormulas">''')
         # -------------------------------------
@@ -1885,13 +1842,12 @@ def minValue_HTML(i):
     text = '{}: {}:\n'.format(ex_cls.__name__, ex)
     import traceback
     text += ''.join(traceback.format_tb(tb))
-
     print(text)
     QtWidgets.QMessageBox.critical(None, 'Error', text)
     quit()
-
 import sys
 sys.excepthook = log_uncaught_exceptions
+
 app = QtWidgets.QApplication(sys.argv)'''
 #=====================================================================
 
